@@ -41,11 +41,11 @@ type FormData = {
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 
 const trainingMonths = [
-  { id: "june-2026", label: "June 2026", dates: "June 6 – June 27", time: "Saturdays, 1:00 PM – 2:30 PM EAT", priceUsd: 62 },
-  { id: "july-2026", label: "July 2026", dates: "July 4 – July 25", time: "Saturdays, 1:00 PM – 2:30 PM EAT", priceUsd: 62 },
-  { id: "august-2026", label: "August 2026", dates: "August 5 – August 26", time: "Saturdays, 1:00 PM – 2:30 PM EAT", priceUsd: 62 },
-  { id: "october-2026", label: "October 2026", dates: "October 3 – October 24", time: "Saturdays, 1:00 PM – 2:30 PM EAT", priceUsd: 62 },
-  { id: "november-2026", label: "November 2026", dates: "November 7 – November 28", time: "Saturdays, 1:00 PM – 2:30 PM EAT", priceUsd: 62 },
+  { id: "july-2026", label: "July 2026", dates: "July 4 – July 25", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
+  { id: "august-2026", label: "August 2026", dates: "August 5 – August 26", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
+  { id: "october-2026", label: "October 2026", dates: "October 3 – October 24", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
+  { id: "november-2026", label: "November 2026", dates: "November 7 – November 28", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
+  { id: "january-2027", label: "January 2027", dates: "January 2 – January 23", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
 ];
 
 const mockTests = [
@@ -326,8 +326,11 @@ function App() {
           <p className="eyebrow">PUMaC Africa</p>
           <h1>Princeton University Mathematics Competition Africa</h1>
           <p>
-            Train for Africa’s first Princeton University Mathematics Competition with
+            Train for Africa's first Ivy League Mathematics Competition (PUMaC) with
             Learning Sprouts and Princeton University Math Club.
+          </p>
+          <p className="hero-subline">
+            Training open to students aged 13 – 18 all across Africa (virtual)
           </p>
 
           <div className="hero-actions button-row">
@@ -337,24 +340,62 @@ function App() {
         </div>
       </section>
 
-      <section className="section about-section" id="about">
-        <div className="math-visual" aria-hidden="true">
-          <div className="formula">a² + b² = c²</div>
-          <div className="formula">Σ n = n(n+1)/2</div>
-          <div className="formula">f(x) = x² - 4x + 7</div>
-          <div className="diagram triangle"></div>
-          <div className="diagram circle"></div>
-          <div className="grid-lines"></div>
+      <section className="section about-section-wrap" id="about">
+        <div className="about-top">
+          <div className="math-visual" aria-hidden="true">
+            <div className="formula">a² + b² = c²</div>
+            <div className="formula">Σ n = n(n+1)/2</div>
+            <div className="formula">f(x) = x² - 4x + 7</div>
+            <div className="diagram triangle"></div>
+            <div className="diagram circle"></div>
+            <div className="grid-lines"></div>
+          </div>
+
+          <div>
+            <p className="section-label">About the competition</p>
+            <h2>A global math pathway for ambitious students</h2>
+            <p className="section-copy">
+              The Princeton University Mathematics Competition Africa gives high-achieving
+              students below age 20 access to structured online training, mock tests, and
+              an international-standard competition experience.
+            </p>
+          </div>
         </div>
 
-        <div>
-          <p className="section-label">About the competition</p>
-          <h2>A global math pathway for ambitious students</h2>
-          <p className="section-copy">
-            The Princeton University Mathematics Competition Africa gives high-achieving
-            students below age 20 access to structured online training, mock tests, and
-            an international-standard competition experience.
-          </p>
+        <div className="about-register">
+          <p className="section-label">Registration options</p>
+          <h3 className="about-register-heading">Who can register for PUMaC?</h3>
+
+          <div className="cards-grid three">
+            <article className="register-card">
+              <div className="register-card-icon">👤</div>
+              <h4>Individual Registration</h4>
+              <p>Register for PUMaC training and competition as an individual student. Open to students aged 13–18 from anywhere in Africa.</p>
+              <div className="card-actions">
+                <button onClick={() => openRegistration("training")}>Register as Individual</button>
+              </div>
+            </article>
+
+            <article className="register-card">
+              <div className="register-card-icon">👥</div>
+              <h4>Team Registration</h4>
+              <p>Form a team of 8 and register for PUMaC at a discounted rate. Collaborate, compete, and represent your school or community together.</p>
+              <div className="card-actions">
+                <button onClick={() => openRegistration("competition")}>Register a Team</button>
+              </div>
+            </article>
+
+            <article className="register-card register-card--school">
+              <div className="register-card-icon">🏫</div>
+              <h4>School Registration</h4>
+              <p>Are you a school? Physical, on-campus training is also available for your school. Get in touch to discuss a tailored programme for your students.</p>
+              <div className="card-actions">
+                <a href="mailto:ask@learningsprouts.school" className="register-card-mail-btn">
+                  <FiMail /> Send an Enquiry
+                </a>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -370,7 +411,7 @@ function App() {
       </section>
 
       <section className="section" id="focus">
-        <p className="section-label">What you’ll master</p>
+        <p className="section-label">What you'll master</p>
         <h2>Program Focus Areas</h2>
 
         <div className="cards-grid">
@@ -396,7 +437,7 @@ function App() {
 
           <article className="program-card">
             <h3>Mock Tests + Review</h3>
-            <p>Hybrid mock tests on separate dates, with timed practice, instructor reviews, and individual + team preparation.</p>
+            <p>Timed simulations of the real competition with instructor review. Held online, with an in-person option for students based in Kenya.</p>
             <div className="button-row card-actions">
               <button onClick={() => openRegistration("mock-test")}>Register for Mock Test</button>
             </div>
@@ -453,7 +494,7 @@ function App() {
         <div className="faq-list">
           <details>
             <summary>Who can join Princeton University Mathematics Competition Africa?</summary>
-            <p>It is ideal for high school students, but any high-achieving student below age 20 can train and compete.</p>
+            <p>PUMaC is ideal for high school students aged 13–18, but any high-achieving student who hasn't hit their 20th birthday by the competition date can compete.</p>
           </details>
 
           <details>
@@ -468,7 +509,7 @@ function App() {
 
           <details>
             <summary>When are the mock tests?</summary>
-            <p>The mock tests are scheduled for September 26, 2026 and November 28, 2026.</p>
+            <p>The mock tests are online and scheduled for September 26, 2026 and November 28, 2026. We have in-person mock tests for learners based in Nairobi at the Learning Sprouts Center.</p>
           </details>
 
           <details>

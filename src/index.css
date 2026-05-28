@@ -121,6 +121,14 @@ button {
   line-height: 1.8;
 }
 
+.hero-subline {
+  margin-top: 14px;
+  color: #142033;
+  font-weight: 700;
+  font-size: 0.98rem;
+  letter-spacing: 0.01em;
+}
+
 .hero-actions {
   margin-top: 32px;
   display: flex;
@@ -351,38 +359,101 @@ textarea {
   text-decoration: none;
 }
 
-@media (max-width: 900px) {
-  .cards-grid,
-  .cards-grid.three,
-  .registration-modal {
-    grid-template-columns: 1fr;
-  }
-
-  .form-grid,
-  .option-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .site-nav {
-    padding: 0 5%;
-  }
-
-  .site-nav nav a {
-    display: none;
-  }
-
-  .hero-actions {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+/* ── About section ── */
+.about-section-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
 }
-.about-section {
+
+.about-top {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
   gap: 56px;
   align-items: center;
 }
 
+.about-register {
+  border-top: 1px solid rgba(20, 32, 51, 0.08);
+  padding-top: 48px;
+}
+
+.about-register-heading {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: -0.04em;
+  margin: 12px 0 32px;
+}
+
+/* ── Who Can Register cards ── */
+.register-card {
+  background: white;
+  border: 1px solid rgba(20, 32, 51, 0.1);
+  border-radius: 22px;
+  padding: 32px 28px;
+  box-shadow: 0 18px 50px rgba(20, 32, 51, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.register-card-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.register-card h4 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.register-card p {
+  color: #5c6678;
+  line-height: 1.7;
+  flex: 1;
+  margin: 0;
+}
+
+.register-card .card-actions {
+  margin-top: auto;
+}
+
+.register-card button {
+  border: 0;
+  border-radius: 999px;
+  background: #142033;
+  color: white;
+  padding: 13px 24px;
+  font-weight: 900;
+  font: inherit;
+  cursor: pointer;
+}
+
+.register-card--school {
+  background: linear-gradient(135deg, #fff4e6 0%, #ffffff 60%);
+  border-color: rgba(244, 124, 32, 0.25);
+}
+
+.register-card-mail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: #f47c20;
+  color: white;
+  padding: 13px 24px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.register-card-mail-btn:hover {
+  background: #d96a10;
+}
+
+/* ── Math visual ── */
 .math-visual {
   position: relative;
   min-height: 320px;
@@ -490,8 +561,33 @@ textarea {
   margin-bottom: 0;
 }
 
+/* ── Responsive ── */
 @media (max-width: 900px) {
-  .about-section {
+  .cards-grid,
+  .cards-grid.three,
+  .registration-modal {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid,
+  .option-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .site-nav {
+    padding: 0 5%;
+  }
+
+  .site-nav nav a {
+    display: none;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .about-top {
     grid-template-columns: 1fr;
   }
 
