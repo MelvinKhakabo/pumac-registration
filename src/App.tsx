@@ -24,6 +24,7 @@ declare global {
 type ProgramType = "training" | "mock-test" | "competition";
 type ContactMethod = "" | "whatsapp" | "email" | "phone_call";
 type CompetitionType = "" | "individual" | "team-of-8";
+type PaymentMethod = "card" | "mpesa";
 
 type FormData = {
   studentName: string;
@@ -36,9 +37,11 @@ type FormData = {
   preferredContactMethod: ContactMethod;
   teamName: string;
   teamMembers: string;
+  mpesaPhone: string;
 };
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+const KES_RATE = 130; // 1 USD = 130 KES
 
 const trainingMonths = [
   { id: "july-2026", label: "July 2026", dates: "July 4 – July 25", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
@@ -64,13 +67,19 @@ const initialFormData: FormData = {
   preferredContactMethod: "",
   teamName: "",
   teamMembers: "",
+  mpesaPhone: "",
 };
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
+function formatUsd(amount: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
+}
+
+function formatKes(amount: number) {
+  return `KSh ${new Intl.NumberFormat("en-KE").format(Math.round(amount))}`;
+}
+
+function isKenya(country: string) {
+  return country.trim().toLowerCase() === "kenya";
 }
 
 function App() {
@@ -82,6 +91,15 @@ function App() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [scrolled, setScrolled] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
+  const [stkPending, setStkPending] = useState(false);
+
+  const kenyanUser = isKenya(formData.country);
+
+  // Reset payment method to card when country changes away from Kenya
+  useEffect(() => {
+    if (!kenyanUser) setPaymentMethod("card");
+  }, [kenyanUser]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -99,6 +117,8 @@ function App() {
     return 0;
   }, [programType, selectedMonths, selectedMocks, competitionType]);
 
+  const totalKes = totalUsd * KES_RATE;
+
   function handleNavClick(e: MouseEvent<HTMLAnchorElement>, id: string) {
     e.preventDefault();
     const el = document.getElementById(id);
@@ -114,6 +134,7 @@ function App() {
     setSelectedMocks([]);
     setCompetitionType("");
     setErrors({});
+    setStkPending(false);
   }
 
   function updateField<K extends keyof FormData>(key: K, value: FormData[K]) {
@@ -145,13 +166,17 @@ function App() {
       if (!formData.teamMembers.trim()) nextErrors.teamMembers = "Team members are required.";
     }
 
+    if (kenyanUser && paymentMethod === "mpesa" && !formData.mpesaPhone.trim()) {
+      nextErrors.mpesaPhone = "M-Pesa phone number is required.";
+    }
+
     if (totalUsd <= 0) nextErrors.total = "Please select a valid option.";
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }
 
-  async function saveRegistration(reference: string, amountInUsdCents: number) {
+  async function saveRegistration(reference: string, amountInSubunit: number, currency: "USD" | "KES") {
     const { data: programData, error: programError } = await supabase
       .from("programs")
       .select("id")
@@ -187,7 +212,7 @@ function App() {
         parent_whatsapp: formData.parentWhatsapp,
         preferred_contact_method: formData.preferredContactMethod,
         total_usd: totalUsd,
-        paystack_amount_subunit: amountInUsdCents,
+        paystack_amount_subunit: amountInSubunit,
         payment_status: "paid",
         paystack_reference: reference,
       })
@@ -244,7 +269,8 @@ function App() {
       reference,
       status: "paid",
       amount_usd: totalUsd,
-      provider: "paystack",
+      currency,
+      provider: paymentMethod === "mpesa" ? "mpesa" : "paystack",
       paid_at: new Date().toISOString(),
     });
 
@@ -265,62 +291,109 @@ function App() {
     }
 
     const reference = `LS-PUMAC-${Date.now()}`;
-    const amountInUsdCents = Math.round(totalUsd * 100);
-
     const selectedTrainingMonths = trainingMonths.filter((month) => selectedMonths.includes(month.id));
     const selectedMockTests = mockTests.filter((mock) => selectedMocks.includes(mock.id));
 
     const paystack = new window.PaystackPop();
 
-    paystack.newTransaction({
-      key: PAYSTACK_PUBLIC_KEY,
-      email: formData.parentEmail,
-      amount: amountInUsdCents,
-      currency: "USD",
-      reference,
-      metadata: {
-        program_type: programType,
-        student_name: formData.studentName,
-        parent_name: formData.parentName,
-        parent_email: formData.parentEmail,
-        parent_whatsapp: formData.parentWhatsapp,
-        charge_currency: "USD",
-        total_usd: totalUsd,
-        selected_training_months: selectedTrainingMonths,
-        selected_mock_tests: selectedMockTests,
-        competition_type: competitionType,
-        team_name: formData.teamName,
-      },
-      onSuccess: async (response) => {
-        try {
-          await saveRegistration(response.reference, amountInUsdCents);
-          window.location.href = `/thank-you.html?reference=${response.reference}`;
-        } catch (error) {
-          console.error(error);
-          alert("Payment succeeded but saving failed. Please contact support.");
-        }
-      },
-      onCancel: () => {
-        alert("Payment window closed. You can try again when ready.");
-      },
-    });
+    if (kenyanUser && paymentMethod === "mpesa") {
+      // M-Pesa STK push via Paystack — charge in KES
+      const amountInKesCents = Math.round(totalKes * 100);
+
+      setStkPending(true);
+
+      paystack.newTransaction({
+        key: PAYSTACK_PUBLIC_KEY,
+        email: formData.parentEmail,
+        amount: amountInKesCents,
+        currency: "KES",
+        reference,
+        metadata: {
+          program_type: programType,
+          student_name: formData.studentName,
+          parent_name: formData.parentName,
+          parent_email: formData.parentEmail,
+          parent_whatsapp: formData.parentWhatsapp,
+          mpesa_phone: formData.mpesaPhone,
+          charge_currency: "KES",
+          total_usd: totalUsd,
+          total_kes: totalKes,
+          selected_training_months: selectedTrainingMonths,
+          selected_mock_tests: selectedMockTests,
+          competition_type: competitionType,
+          team_name: formData.teamName,
+        },
+        onSuccess: async (response) => {
+          setStkPending(false);
+          try {
+            await saveRegistration(response.reference, amountInKesCents, "KES");
+            window.location.href = `/thank-you.html?reference=${response.reference}`;
+          } catch (error) {
+            console.error(error);
+            alert("Payment succeeded but saving failed. Please contact support.");
+          }
+        },
+        onCancel: () => {
+          setStkPending(false);
+          alert("Payment window closed. You can try again when ready.");
+        },
+      });
+    } else {
+      // Standard card payment in USD
+      const amountInUsdCents = Math.round(totalUsd * 100);
+
+      paystack.newTransaction({
+        key: PAYSTACK_PUBLIC_KEY,
+        email: formData.parentEmail,
+        amount: amountInUsdCents,
+        currency: "USD",
+        reference,
+        metadata: {
+          program_type: programType,
+          student_name: formData.studentName,
+          parent_name: formData.parentName,
+          parent_email: formData.parentEmail,
+          parent_whatsapp: formData.parentWhatsapp,
+          charge_currency: "USD",
+          total_usd: totalUsd,
+          selected_training_months: selectedTrainingMonths,
+          selected_mock_tests: selectedMockTests,
+          competition_type: competitionType,
+          team_name: formData.teamName,
+        },
+        onSuccess: async (response) => {
+          try {
+            await saveRegistration(response.reference, amountInUsdCents, "USD");
+            window.location.href = `/thank-you.html?reference=${response.reference}`;
+          } catch (error) {
+            console.error(error);
+            alert("Payment succeeded but saving failed. Please contact support.");
+          }
+        },
+        onCancel: () => {
+          alert("Payment window closed. You can try again when ready.");
+        },
+      });
+    }
   }
 
   return (
     <main className="page">
+      {/* ── Nav ── */}
       <header className={`site-nav${scrolled ? " site-nav--scrolled" : ""}`}>
         <a href="#hero" className="nav-brand" onClick={(e) => handleNavClick(e, "hero")}>Learning Sprouts</a>
-
         <nav>
           <a href="#about" onClick={(e) => handleNavClick(e, "about")}>About</a>
           <a href="#focus" onClick={(e) => handleNavClick(e, "focus")}>Program</a>
           <a href="#schedule" onClick={(e) => handleNavClick(e, "schedule")}>Schedule</a>
           <a href="#pricing" onClick={(e) => handleNavClick(e, "pricing")}>Pricing</a>
           <a href="#faqs" onClick={(e) => handleNavClick(e, "faqs")}>FAQs</a>
+          <a href="#register" className="nav-register-link" onClick={(e) => handleNavClick(e, "register")}>Register</a>
           <button onClick={() => openRegistration("training")}>Register Now</button>
         </nav>
       </header>
 
+      {/* ── 1. Hero ── */}
       <section className="hero hero-compact" id="hero">
         <div>
           <p className="eyebrow">PUMaC Africa</p>
@@ -332,40 +405,128 @@ function App() {
           <p className="hero-subline">
             Training open to students aged 13 – 18 all across Africa (virtual)
           </p>
-
           <div className="hero-actions button-row">
             <button onClick={() => openRegistration("training")}>Register for Training</button>
             <button className="secondary" onClick={() => openRegistration("competition")}>Register for Competition</button>
           </div>
+          <div className="hero-social-proof">
+            <span className="hero-social-proof--orange">🌍 Students from 12+ African countries</span>
+            <span className="hero-social-proof--orange">🎓 Harvard-trained mentors</span>
+            <span className="hero-social-proof--orange">🏛️ Official PUMaC preparation pathway</span>
+          </div>
         </div>
       </section>
 
-      <section className="section about-section-wrap" id="about">
-        <div className="about-top">
-          <div className="math-visual" aria-hidden="true">
-            <div className="formula">a² + b² = c²</div>
-            <div className="formula">Σ n = n(n+1)/2</div>
-            <div className="formula">f(x) = x² - 4x + 7</div>
-            <div className="diagram triangle"></div>
-            <div className="diagram circle"></div>
-            <div className="grid-lines"></div>
-          </div>
+      {/* ── 2. Why Students Join (moved up) ── */}
+      <section className="section learning-sprouts-section" id="about">
+        <p className="section-label">About Learning Sprouts</p>
+        <h2>Future Skills. Real Growth.</h2>
+        <p className="section-copy">
+          Learning Sprouts is a Kenya-based future skills training provider founded by
+          <strong> Harvard University graduates</strong>. We offer research-driven programs
+          that help students build academic excellence, creativity, leadership, and real-world
+          problem-solving skills.
+        </p>
+      </section>
 
-          <div>
-            <p className="section-label">About the competition</p>
-            <h2>A global math pathway for ambitious students</h2>
+      {/* ── 3. Three Ways to Participate (moved up) ── */}
+      <section className="section" id="schedule">
+        <p className="section-label">Program structure</p>
+        <h2>Three Ways to Participate</h2>
+        <div className="cards-grid three">
+          <article className="program-card">
+            <h3>Trainings</h3>
+            <p>Weekly weekend online sessions. 1.5 hours per session, 4 sessions per month, covering all competition topics.</p>
+            <div className="button-row card-actions">
+              <button onClick={() => openRegistration("training")}>Register for Training</button>
+            </div>
+          </article>
+
+          <article className="program-card">
+            <h3>Mock Tests + Review</h3>
+            <p>Timed simulations of the real competition with instructor review. Held online, with an in-person option for students based in Kenya.</p>
+            <div className="button-row card-actions">
+              <button onClick={() => openRegistration("mock-test")}>Register for Mock Test</button>
+            </div>
+          </article>
+
+          <article className="program-card">
+            <h3>Competition Day</h3>
+            <p>January 30, 2027. Full-day competition with individual and team rounds at international standard.</p>
+            <div className="button-row card-actions">
+              <button onClick={() => openRegistration("competition")}>Register for Competition</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      {/* ── 4. Program Focus Areas ── */}
+      <section className="section" id="focus">
+        <p className="section-label">What you'll master</p>
+        <h2>Program Focus Areas</h2>
+        <div className="cards-grid">
+          <article className="info-card"><span>ƒ(x)</span><h3>Algebra</h3><p>Equations, inequalities, functions, sequences, and advanced algebraic techniques.</p></article>
+          <article className="info-card"><span>#</span><h3>Number Theory</h3><p>Divisibility, prime numbers, modular arithmetic, and proof-based reasoning.</p></article>
+          <article className="info-card"><span>△</span><h3>Geometry</h3><p>Visual reasoning, Euclidean geometry, transformations, and proofs.</p></article>
+          <article className="info-card"><span>●●</span><h3>Combinatorics</h3><p>Counting principles, permutations, combinations, recursion, and mathematical strategy.</p></article>
+        </div>
+      </section>
+
+      {/* ── 5 & 6. Registration sections ── */}
+      <section className="section register-split-section" id="register">
+
+        {/* ── 5. Kenyan Participants ── */}
+        <div className="register-group" id="register-kenya">
+          <div className="register-group-header">
+            <p className="section-label">Kenyan participants</p>
+            <h2>Register as a Kenyan Participant</h2>
             <p className="section-copy">
-              The Princeton University Mathematics Competition Africa gives high-achieving
-              students below age 20 access to structured online training, mock tests, and
-              an international-standard competition experience.
+              Based in Kenya? Register below and pay securely via M-Pesa or card. In-person mock tests available at our Nairobi center.
             </p>
+          </div>
+          <div className="cards-grid three">
+            <article className="register-card">
+              <div className="register-card-icon">👤</div>
+              <h4>Individual Registration</h4>
+              <p>Register for PUMaC training and competition as an individual student. Open to students aged 13–18 from anywhere in Africa.</p>
+              <div className="mpesa-badge">M-Pesa accepted</div>
+              <div className="card-actions">
+                <button onClick={() => openRegistration("training")}>Register as Individual</button>
+              </div>
+            </article>
+
+            <article className="register-card">
+              <div className="register-card-icon">👥</div>
+              <h4>Team Registration</h4>
+              <p>Form a team of 8 and register for PUMaC at a discounted rate. Collaborate, compete, and represent your school or community together.</p>
+              <div className="mpesa-badge">M-Pesa accepted</div>
+              <div className="card-actions">
+                <button onClick={() => openRegistration("competition")}>Register a Team</button>
+              </div>
+            </article>
+
+            <article className="register-card register-card--school">
+              <div className="register-card-icon">🏫</div>
+              <h4>School Registration</h4>
+              <p>Are you a school? Physical, on-campus training is also available for your school. Get in touch to discuss a tailored programme for your students.</p>
+              <div className="card-actions">
+                <a href="mailto:ask@learningsprouts.school" className="register-card-mail-btn">
+                  <FiMail /> Send an Enquiry
+                </a>
+              </div>
+            </article>
           </div>
         </div>
 
-        <div className="about-register">
-          <p className="section-label">Registration options</p>
-          <h3 className="about-register-heading">Who can register for PUMaC?</h3>
-
+        {/* ── 6. Other Participants ── */}
+        <div className="register-group register-group--other" id="register-other">
+          <div className="register-group-header">
+            <p className="section-label">Other participants</p>
+            <h2>Register from Across Africa</h2>
+            <p className="section-copy">
+              Participating from outside Kenya? Register below and pay securely in USD via card through Paystack.
+            </p>
+          </div>
           <div className="cards-grid three">
             <article className="register-card">
               <div className="register-card-icon">👤</div>
@@ -399,63 +560,15 @@ function App() {
         </div>
       </section>
 
-      <section className="section learning-sprouts-section">
-        <p className="section-label">About Learning Sprouts</p>
-        <h2>Future Skills. Real Growth.</h2>
-        <p className="section-copy">
-          Learning Sprouts is a Kenya-based future skills training provider founded by
-          <strong> Harvard University graduates</strong>. We offer research-driven programs
-          that help students build academic excellence, creativity, leadership, and real-world
-          problem-solving skills.
-        </p>
-      </section>
-
-      <section className="section" id="focus">
-        <p className="section-label">What you'll master</p>
-        <h2>Program Focus Areas</h2>
-
-        <div className="cards-grid">
-          <article className="info-card"><span>ƒ(x)</span><h3>Algebra</h3><p>Explore equations, inequalities, functions, sequences, and advanced algebraic techniques.</p></article>
-          <article className="info-card"><span>#</span><h3>Number Theory</h3><p>Dive into divisibility, prime numbers, modular arithmetic, and proof-based reasoning.</p></article>
-          <article className="info-card"><span>△</span><h3>Geometry</h3><p>Strengthen visual reasoning, Euclidean geometry, transformations, and proofs.</p></article>
-          <article className="info-card"><span>●●</span><h3>Combinatorics</h3><p>Learn counting principles, permutations, combinations, recursion, and mathematical strategy.</p></article>
-        </div>
-      </section>
-
-      <section className="section" id="schedule">
-        <p className="section-label">Program structure</p>
-        <h2>Three Ways to Participate</h2>
-
-        <div className="cards-grid three">
-          <article className="program-card">
-            <h3>Trainings</h3>
-            <p>Weekly weekend online sessions. 1.5 hours per session, 4 sessions per month, covering all competition topics.</p>
-            <div className="button-row card-actions">
-              <button onClick={() => openRegistration("training")}>Register for Training</button>
-            </div>
-          </article>
-
-          <article className="program-card">
-            <h3>Mock Tests + Review</h3>
-            <p>Timed simulations of the real competition with instructor review. Held online, with an in-person option for students based in Kenya.</p>
-            <div className="button-row card-actions">
-              <button onClick={() => openRegistration("mock-test")}>Register for Mock Test</button>
-            </div>
-          </article>
-
-          <article className="program-card">
-            <h3>Competition Day</h3>
-            <p>January 30, 2027. Full-day competition with individual and team rounds at international standard.</p>
-            <div className="button-row card-actions">
-              <button onClick={() => openRegistration("competition")}>Register for Competition</button>
-            </div>
-          </article>
-        </div>
-      </section>
-
+      {/* ── 7. Pricing ── */}
       <section className="section" id="pricing">
         <p className="section-label">Pricing & registration</p>
         <h2>Choose your PUMaC pathway</h2>
+
+        <div className="recommended-pathway">
+          <p className="recommended-label">⭐ Recommended pathway</p>
+          <p className="recommended-desc">Most students register for Training + Mock Tests + Competition for the full preparation experience.</p>
+        </div>
 
         <div className="cards-grid three">
           <article className="pricing-card">
@@ -470,13 +583,14 @@ function App() {
           <article className="pricing-card">
             <h3>Mock Tests</h3>
             <strong>$10</strong>
-            <p>Timed mock test plus instructor-led review.</p>
+            <p>Timed mock test plus instructor-led review. In-person option available in Nairobi.</p>
             <div className="button-row card-actions">
               <button onClick={() => openRegistration("mock-test")}>Register for Mock Test</button>
             </div>
           </article>
 
-          <article className="pricing-card">
+          <article className="pricing-card pricing-card--featured">
+            <div className="pricing-featured-badge">Most popular</div>
             <h3>Competition Fee</h3>
             <strong>$12.50/student</strong>
             <p>Or $100 per team of 8 students.</p>
@@ -487,43 +601,57 @@ function App() {
         </div>
       </section>
 
+      {/* ── 8. FAQ ── */}
       <section className="section" id="faqs">
         <p className="section-label">FAQs</p>
         <h2>Frequently Asked Questions</h2>
-
         <div className="faq-list">
           <details>
             <summary>Who can join Princeton University Mathematics Competition Africa?</summary>
             <p>PUMaC is ideal for high school students aged 13–18, but any high-achieving student who hasn't hit their 20th birthday by the competition date can compete.</p>
           </details>
-
           <details>
             <summary>Are the training sessions online?</summary>
             <p>Yes. Training sessions are fully online and held on weekends so they fit around regular school schedules.</p>
           </details>
-
           <details>
             <summary>What topics are covered?</summary>
             <p>Training covers Algebra, Number Theory, Geometry, and Combinatorics.</p>
           </details>
-
           <details>
             <summary>When are the mock tests?</summary>
-            <p>The mock tests are online and scheduled for September 26, 2026 and November 28, 2026. We have in-person mock tests for learners based in Nairobi at the Learning Sprouts Center.</p>
+            <p>Mock tests are scheduled for September 26, 2026 and November 28, 2026. In-person mock tests are available for learners based in Nairobi at the Learning Sprouts Center, Loresho Ridge, next to Wasp and Sprout.</p>
           </details>
-
           <details>
             <summary>When is the competition?</summary>
             <p>The competition date is January 30, 2027.</p>
           </details>
-
           <details>
             <summary>Can students register as a team?</summary>
             <p>Yes. Students can register individually or as a team of up to 8 students.</p>
           </details>
+          <details>
+            <summary>Can Kenyan students pay in KSh via M-Pesa?</summary>
+            <p>Yes. Kenyan participants can pay via M-Pesa STK push. Simply fill in your details, select Kenya as your country, and choose M-Pesa as your payment method. You'll receive a prompt on your phone to complete the payment.</p>
+          </details>
         </div>
       </section>
 
+      {/* ── 9. Final CTA strip ── */}
+      <div className="final-cta-wrap">
+        <section className="final-cta-strip">
+          <div className="final-cta-inner">
+            <h2>Ready to represent Africa in elite mathematics?</h2>
+            <p>Join students from across the continent competing on an international stage.</p>
+            <div className="hero-actions button-row">
+              <button onClick={() => openRegistration("training")}>Register for Training</button>
+              <button className="secondary" onClick={() => openRegistration("competition")}>Register for Competition</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* ── Registration Modal ── */}
       {modalOpen && (
         <div className="modal-backdrop">
           <section className="registration-modal">
@@ -587,18 +715,91 @@ function App() {
               )}
             </form>
 
+            {/* ── Payment Summary sidebar ── */}
             <aside className="payment-summary">
               <p className="eyebrow">Payment Summary</p>
-              <h2>{formatCurrency(totalUsd)}</h2>
-              <div className="summary-line"><span>Amount charged</span><strong>{formatCurrency(totalUsd)}</strong></div>
+
+              {/* Amount display — changes based on Kenya + M-Pesa selection */}
+              {kenyanUser && paymentMethod === "mpesa" ? (
+                <>
+                  <h2 className="payment-amount">{formatKes(totalKes)}</h2>
+                  <p className="payment-usd-equiv">≈ {formatUsd(totalUsd)}</p>
+                </>
+              ) : (
+                <h2 className="payment-amount">{formatUsd(totalUsd)}</h2>
+              )}
+
+              <div className="summary-line">
+                <span>Amount charged</span>
+                <strong>
+                  {kenyanUser && paymentMethod === "mpesa"
+                    ? formatKes(totalKes)
+                    : formatUsd(totalUsd)}
+                </strong>
+              </div>
+
+              {/* Payment method toggle — only shown for Kenyan users */}
+              {kenyanUser && (
+                <div className="payment-method-section">
+                  <p className="payment-method-label">Payment method</p>
+                  <div className="payment-method-toggle">
+                    <button
+                      type="button"
+                      className={`toggle-option${paymentMethod === "card" ? " active" : ""}`}
+                      onClick={() => setPaymentMethod("card")}
+                    >
+                      💳 Card (USD)
+                    </button>
+                    <button
+                      type="button"
+                      className={`toggle-option${paymentMethod === "mpesa" ? " active" : ""}`}
+                      onClick={() => setPaymentMethod("mpesa")}
+                    >
+                      📱 M-Pesa (KSh)
+                    </button>
+                  </div>
+
+                  {paymentMethod === "mpesa" && (
+                    <label className="mpesa-phone-label">
+                      M-Pesa Phone Number
+                      <input
+                        value={formData.mpesaPhone}
+                        onChange={(e) => updateField("mpesaPhone", e.target.value)}
+                        placeholder="+254 7XX XXX XXX"
+                      />
+                      {errors.mpesaPhone && <span className="error-text">{errors.mpesaPhone}</span>}
+                    </label>
+                  )}
+                </div>
+              )}
+
               {errors.total && <p className="error-text">{errors.total}</p>}
-              <button type="button" onClick={handlePayment}>Continue to Payment</button>
-              <p>Payment will be processed securely in USD through Paystack.</p>
+
+              {stkPending ? (
+                <div className="stk-pending">
+                  <div className="stk-icon">📱</div>
+                  <p>Check your phone for the M-Pesa prompt</p>
+                  <small>This may take up to 30 seconds. Do not close this window.</small>
+                </div>
+              ) : (
+                <button type="button" onClick={handlePayment} disabled={stkPending}>
+                  {kenyanUser && paymentMethod === "mpesa"
+                    ? "Send M-Pesa Request"
+                    : "Continue to Payment"}
+                </button>
+              )}
+
+              <p>
+                {kenyanUser && paymentMethod === "mpesa"
+                  ? "Payment processed securely via M-Pesa through Paystack."
+                  : "Payment will be processed securely in USD through Paystack."}
+              </p>
             </aside>
           </section>
         </div>
       )}
 
+      {/* ── Footer (unchanged) ── */}
       <footer className="site-footer">
         <p className="footer-brand">Learning Sprouts</p>
         <div>

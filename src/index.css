@@ -34,6 +34,7 @@ button {
   min-height: 100vh;
 }
 
+/* ── Nav ── */
 .site-nav {
   position: sticky;
   top: 0;
@@ -74,11 +75,15 @@ button {
   font-size: 0.9rem;
 }
 
+.nav-register-link {
+  color: #f47c20 !important;
+}
+
 .site-nav button,
 .hero-actions button,
 .program-card button,
 .pricing-card button,
-.payment-summary button {
+.payment-summary > button {
   border: 0;
   border-radius: 999px;
   background: #142033;
@@ -87,6 +92,7 @@ button {
   font-weight: 900;
 }
 
+/* ── Hero ── */
 .hero {
   max-width: 1180px;
   margin: auto;
@@ -141,6 +147,31 @@ button {
   border: 1px solid rgba(20, 32, 51, 0.16);
 }
 
+/* ── Hero social proof ── */
+.hero-social-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-top: 28px;
+}
+
+.hero-social-proof span {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #142033;
+  background: white;
+  border: 1px solid rgba(20, 32, 51, 0.12);
+  border-radius: 999px;
+  padding: 6px 16px;
+}
+
+.hero-social-proof--orange {
+  background: #f47c20 !important;
+  color: white !important;
+  border-color: #f47c20 !important;
+}
+
+/* ── Sections ── */
 .section {
   max-width: 1180px;
   margin: auto;
@@ -162,6 +193,7 @@ button {
   font-size: 1.05rem;
 }
 
+/* ── Cards grid ── */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -208,6 +240,256 @@ button {
   margin: 12px 0;
 }
 
+/* ── Mock test location tag ── */
+.mock-test-location {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #f47c20;
+  font-weight: 700;
+  background: #fff4e6;
+  border: 1px solid rgba(244, 124, 32, 0.2);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.mock-test-location svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ── Learning Sprouts section ── */
+.learning-sprouts-section {
+  background: rgba(255, 255, 255, 0.42);
+  border-radius: 28px;
+}
+
+/* ── Register split section ── */
+.register-split-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 0;
+}
+
+.register-group {
+  padding: 56px 0;
+}
+
+.register-group + .register-group {
+  border-top: 1px solid rgba(20, 32, 51, 0.08);
+}
+
+.register-group--other {
+  background: rgba(20, 32, 51, 0.02);
+  margin: 0 -8%;
+  padding: 56px 8%;
+  border-radius: 0;
+}
+
+.register-group-header {
+  margin-bottom: 36px;
+}
+
+.register-group-header h2 {
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  letter-spacing: -0.05em;
+  margin: 12px 0 16px;
+}
+
+/* ── M-Pesa badge on Kenya cards ── */
+.mpesa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #1a6e3c;
+  background: #e6f4ec;
+  border: 1px solid rgba(26, 110, 60, 0.2);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.mpesa-badge::before {
+  content: "📱";
+  font-size: 0.8rem;
+}
+
+/* ── Register cards ── */
+.register-card {
+  background: white;
+  border: 1px solid rgba(20, 32, 51, 0.1);
+  border-radius: 22px;
+  padding: 32px 28px;
+  box-shadow: 0 18px 50px rgba(20, 32, 51, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.register-card-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.register-card h4 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.register-card p {
+  color: #5c6678;
+  line-height: 1.7;
+  flex: 1;
+  margin: 0;
+}
+
+.register-card .card-actions {
+  margin-top: auto;
+}
+
+.register-card button {
+  border: 0;
+  border-radius: 999px;
+  background: #142033;
+  color: white;
+  padding: 13px 24px;
+  font-weight: 900;
+  font: inherit;
+  cursor: pointer;
+}
+
+.register-card--school {
+  background: linear-gradient(135deg, #fff4e6 0%, #ffffff 60%);
+  border-color: rgba(244, 124, 32, 0.25);
+}
+
+.register-card-mail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: #f47c20;
+  color: white;
+  padding: 13px 24px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.register-card-mail-btn:hover {
+  background: #d96a10;
+}
+
+/* ── Pricing featured card ── */
+.pricing-card--featured {
+  border: 2px solid #f47c20;
+  position: relative;
+}
+
+.pricing-featured-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #a85700;
+  background: #fff4e6;
+  border: 1px solid rgba(244, 124, 32, 0.3);
+  border-radius: 999px;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+}
+
+/* ── Recommended pathway ── */
+.recommended-pathway {
+  background: white;
+  border: 1px solid rgba(244, 124, 32, 0.3);
+  border-left: 4px solid #f47c20;
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 28px;
+}
+
+.recommended-label {
+  font-weight: 900;
+  font-size: 0.9rem;
+  color: #142033;
+  margin: 0 0 4px;
+}
+
+.recommended-desc {
+  color: #5c6678;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Final CTA wrap (separates CTA from footer) ── */
+.final-cta-wrap {
+  background: #fff8ef;
+  padding: 72px 8%;
+}
+
+/* ── Final CTA strip ── */
+.final-cta-strip {
+  background: #142033;
+  padding: 80px 8%;
+  text-align: center;
+  border-radius: 28px;
+  max-width: 1180px;
+  margin: auto;
+}
+
+.final-cta-inner {
+  max-width: 640px;
+  margin: auto;
+}
+
+.final-cta-strip h2 {
+  color: white;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  letter-spacing: -0.04em;
+  margin: 0 0 16px;
+}
+
+.final-cta-strip p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin: 0 0 32px;
+}
+
+.final-cta-strip .hero-actions {
+  justify-content: center;
+  margin-top: 0;
+}
+
+.final-cta-strip button {
+  border: 0;
+  border-radius: 999px;
+  background: white;
+  color: #142033;
+  padding: 15px 28px;
+  font-weight: 900;
+  font: inherit;
+  cursor: pointer;
+}
+
+.final-cta-strip .secondary {
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* ── Modal ── */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -303,14 +585,23 @@ textarea {
   margin-top: 22px;
 }
 
+/* ── Payment summary sidebar ── */
 .payment-summary {
   align-self: start;
   position: sticky;
   top: 100px;
 }
 
-.payment-summary h2 {
+.payment-amount {
   font-size: 3rem;
+  margin: 8px 0 2px;
+  letter-spacing: -0.04em;
+}
+
+.payment-usd-equiv {
+  font-size: 0.88rem;
+  color: #7a8495;
+  margin: 0 0 16px;
 }
 
 .summary-line {
@@ -322,13 +613,92 @@ textarea {
   margin: 24px 0;
 }
 
-.payment-summary button {
+/* ── Payment method toggle ── */
+.payment-method-section {
+  margin-bottom: 20px;
+}
+
+.payment-method-label {
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #5c6678;
+  margin: 0 0 10px;
+}
+
+.payment-method-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.toggle-option {
+  border: 1px solid rgba(20, 32, 51, 0.18);
+  border-radius: 12px;
+  background: white;
+  color: #142033;
+  padding: 11px 14px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.toggle-option.active {
+  background: #142033;
+  color: white;
+  border-color: #142033;
+}
+
+.toggle-option:not(.active):hover {
+  border-color: #142033;
+}
+
+.mpesa-phone-label {
+  font-weight: 800;
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ── STK pending state ── */
+.stk-pending {
+  background: #e6f4ec;
+  border: 1px solid rgba(26, 110, 60, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.stk-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.stk-pending p {
+  color: #1a6e3c !important;
+  font-weight: 800;
+  margin: 0 0 6px !important;
+}
+
+.stk-pending small {
+  color: #2d8a52;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.payment-summary > button {
   width: 100%;
 }
 
 .payment-summary p {
   color: #7a8495;
   line-height: 1.6;
+  font-size: 0.88rem;
+  margin-top: 12px;
 }
 
 .error-text {
@@ -336,6 +706,7 @@ textarea {
   font-weight: 700;
 }
 
+/* ── Footer ── */
 .site-footer {
   background: #142033;
   color: white;
@@ -359,161 +730,7 @@ textarea {
   text-decoration: none;
 }
 
-/* ── About section ── */
-.about-section-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 56px;
-}
-
-.about-top {
-  display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 56px;
-  align-items: center;
-}
-
-.about-register {
-  border-top: 1px solid rgba(20, 32, 51, 0.08);
-  padding-top: 48px;
-}
-
-.about-register-heading {
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  letter-spacing: -0.04em;
-  margin: 12px 0 32px;
-}
-
-/* ── Who Can Register cards ── */
-.register-card {
-  background: white;
-  border: 1px solid rgba(20, 32, 51, 0.1);
-  border-radius: 22px;
-  padding: 32px 28px;
-  box-shadow: 0 18px 50px rgba(20, 32, 51, 0.06);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.register-card-icon {
-  font-size: 2rem;
-  line-height: 1;
-}
-
-.register-card h4 {
-  font-size: 1.05rem;
-  margin: 0;
-}
-
-.register-card p {
-  color: #5c6678;
-  line-height: 1.7;
-  flex: 1;
-  margin: 0;
-}
-
-.register-card .card-actions {
-  margin-top: auto;
-}
-
-.register-card button {
-  border: 0;
-  border-radius: 999px;
-  background: #142033;
-  color: white;
-  padding: 13px 24px;
-  font-weight: 900;
-  font: inherit;
-  cursor: pointer;
-}
-
-.register-card--school {
-  background: linear-gradient(135deg, #fff4e6 0%, #ffffff 60%);
-  border-color: rgba(244, 124, 32, 0.25);
-}
-
-.register-card-mail-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 0;
-  border-radius: 999px;
-  background: #f47c20;
-  color: white;
-  padding: 13px 24px;
-  font-weight: 900;
-  font-size: 0.95rem;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.18s;
-}
-
-.register-card-mail-btn:hover {
-  background: #d96a10;
-}
-
-/* ── Math visual ── */
-.math-visual {
-  position: relative;
-  min-height: 320px;
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 70% 30%, rgba(244, 124, 32, 0.18), transparent 30%),
-    linear-gradient(135deg, #fff4e6, #ffffff);
-  border: 1px solid rgba(20, 32, 51, 0.1);
-  box-shadow: 0 18px 50px rgba(20, 32, 51, 0.06);
-  overflow: hidden;
-  padding: 28px;
-}
-
-.formula {
-  color: #142033;
-  font-weight: 900;
-  opacity: 0.42;
-  margin-bottom: 20px;
-  font-size: 1.15rem;
-}
-
-.diagram {
-  position: absolute;
-  border-color: #f47c20;
-  opacity: 0.45;
-}
-
-.triangle {
-  width: 90px;
-  height: 90px;
-  border-left: 3px solid #f47c20;
-  border-bottom: 3px solid #f47c20;
-  transform: rotate(-45deg);
-  left: 56px;
-  bottom: 54px;
-}
-
-.circle {
-  width: 92px;
-  height: 92px;
-  border: 3px solid #142033;
-  border-radius: 50%;
-  right: 44px;
-  bottom: 58px;
-}
-
-.grid-lines {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(20, 32, 51, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 32, 51, 0.05) 1px, transparent 1px);
-  background-size: 28px 28px;
-}
-
-.learning-sprouts-section {
-  background: rgba(255, 255, 255, 0.42);
-  border-radius: 28px;
-}
-
+/* ── Button helpers ── */
 .button-row,
 .card-actions {
   display: flex;
@@ -537,6 +754,7 @@ textarea {
   margin-top: auto;
 }
 
+/* ── FAQ ── */
 .faq-list {
   display: grid;
   gap: 12px;
@@ -587,16 +805,31 @@ textarea {
     align-items: flex-start;
   }
 
-  .about-top {
-    grid-template-columns: 1fr;
-  }
-
-  .math-visual {
-    min-height: 240px;
+  .hero-social-proof {
+    flex-direction: column;
+    gap: 8px;
   }
 
   .button-row,
   .card-actions {
     flex-wrap: wrap;
+  }
+
+  .final-cta-wrap {
+    padding: 48px 5%;
+  }
+
+  .final-cta-strip .hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .register-group--other {
+    margin: 0 -5%;
+    padding: 56px 5%;
+  }
+
+  .payment-method-toggle {
+    grid-template-columns: 1fr;
   }
 }
