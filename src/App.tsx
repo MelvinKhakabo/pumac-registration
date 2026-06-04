@@ -37,7 +37,6 @@ type FormData = {
   preferredContactMethod: ContactMethod;
   teamName: string;
   teamMembers: string;
-  mpesaPhone: string;
 };
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
@@ -67,7 +66,6 @@ const initialFormData: FormData = {
   preferredContactMethod: "",
   teamName: "",
   teamMembers: "",
-  mpesaPhone: "",
 };
 
 function formatUsd(amount: number) {
@@ -164,10 +162,6 @@ function App() {
     if (programType === "competition" && competitionType === "team-of-8") {
       if (!formData.teamName.trim()) nextErrors.teamName = "Team name is required.";
       if (!formData.teamMembers.trim()) nextErrors.teamMembers = "Team members are required.";
-    }
-
-    if (kenyanUser && paymentMethod === "mpesa" && !formData.mpesaPhone.trim()) {
-      nextErrors.mpesaPhone = "M-Pesa phone number is required.";
     }
 
     if (totalUsd <= 0) nextErrors.total = "Please select a valid option.";
@@ -314,7 +308,6 @@ function App() {
           parent_name: formData.parentName,
           parent_email: formData.parentEmail,
           parent_whatsapp: formData.parentWhatsapp,
-          mpesa_phone: formData.mpesaPhone,
           charge_currency: "KES",
           total_usd: totalUsd,
           total_kes: totalKes,
@@ -760,15 +753,7 @@ function App() {
                   </div>
 
                   {paymentMethod === "mpesa" && (
-                    <label className="mpesa-phone-label">
-                      M-Pesa Phone Number
-                      <input
-                        value={formData.mpesaPhone}
-                        onChange={(e) => updateField("mpesaPhone", e.target.value)}
-                        placeholder="+254 7XX XXX XXX"
-                      />
-                      {errors.mpesaPhone && <span className="error-text">{errors.mpesaPhone}</span>}
-                    </label>
+                    <p className="mpesa-note">You'll enter your M-Pesa number on the next screen.</p>
                   )}
                 </div>
               )}

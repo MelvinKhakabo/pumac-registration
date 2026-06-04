@@ -656,11 +656,11 @@ textarea {
   border-color: #142033;
 }
 
-.mpesa-phone-label {
-  font-weight: 800;
-  display: grid;
-  gap: 8px;
-  margin-top: 4px;
+.mpesa-note {
+  font-size: 0.82rem;
+  color: #5c6678;
+  margin: 4px 0 0;
+  line-height: 1.5;
 }
 
 /* ── STK pending state ── */
