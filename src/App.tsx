@@ -751,10 +751,6 @@ function App() {
                       📱 M-Pesa (KSh)
                     </button>
                   </div>
-
-                  {paymentMethod === "mpesa" && (
-                    <p className="mpesa-note">You'll enter your M-Pesa number on the next screen.</p>
-                  )}
                 </div>
               )}
 
@@ -769,7 +765,7 @@ function App() {
               ) : (
                 <button type="button" onClick={handlePayment} disabled={stkPending}>
                   {kenyanUser && paymentMethod === "mpesa"
-                    ? "Send M-Pesa Request"
+                    ? "Pay with M-Pesa"
                     : "Continue to Payment"}
                 </button>
               )}
@@ -798,3 +794,4 @@ function App() {
 }
 
 export default App;
+
