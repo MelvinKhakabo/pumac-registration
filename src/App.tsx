@@ -226,7 +226,7 @@ function App() {
   async function createPendingRegistration(
     reference: string,
     amountInSubunit: number,
-    currency: "USD" | "KES"
+    _currency: "USD" | "KES"  // prefixed with _ as it's stored via the payment method logic below
   ): Promise<string> {
     const { data: programData, error: programError } = await supabase
       .from("programs")
@@ -333,7 +333,7 @@ function App() {
   async function markRegistrationPaid(
     registrationId: string,
     reference: string,
-    amountInSubunit: number,
+    _amountInSubunit: number,  // prefixed with _ as it's not directly used here
     currency: "USD" | "KES"
   ) {
     const { error: updateError } = await supabase
@@ -1048,6 +1048,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
