@@ -272,7 +272,6 @@ function App() {
 
     if (regError || !registration) throw regError || new Error("Registration failed");
 
-    // Save selections immediately so they're not lost
     if (programType === "training") {
       const { data: months, error } = await supabase
         .from("training_months")
@@ -384,7 +383,6 @@ function App() {
     );
     const selectedMockTests = mockTests.filter((mock) => selectedMocks.includes(mock.id));
 
-    // ── Save to DB BEFORE opening Paystack ──
     let registrationId: string;
     try {
       if (kenyanUser && paymentMethod === "mpesa") {
@@ -896,14 +894,52 @@ function App() {
               )}
 
               <div className="form-grid">
-                <label>Student Name<input value={formData.studentName} onChange={(e) => updateField("studentName", e.target.value)} placeholder="Student full name" />{errors.studentName && <span className="error-text">{errors.studentName}</span>}</label>
-                <label>Student Age<input type="number" value={formData.studentAge} onChange={(e) => updateField("studentAge", e.target.value)} placeholder="Age" />{errors.studentAge && <span className="error-text">{errors.studentAge}</span>}</label>
-                <label>School Name<input value={formData.currentSchool} onChange={(e) => updateField("currentSchool", e.target.value)} placeholder="School name" />{errors.currentSchool && <span className="error-text">{errors.currentSchool}</span>}</label>
-                <label>Country<input value={formData.country} onChange={(e) => updateField("country", e.target.value)} placeholder="Country" />{errors.country && <span className="error-text">{errors.country}</span>}</label>
-                <label>Parent/Guardian Name<input value={formData.parentName} onChange={(e) => updateField("parentName", e.target.value)} placeholder="Parent full name" />{errors.parentName && <span className="error-text">{errors.parentName}</span>}</label>
-                <label>Parent Email<input type="email" value={formData.parentEmail} onChange={(e) => updateField("parentEmail", e.target.value)} placeholder="parent@email.com" />{errors.parentEmail && <span className="error-text">{errors.parentEmail}</span>}</label>
-                <label>WhatsApp Number<input value={formData.parentWhatsapp} onChange={(e) => updateField("parentWhatsapp", e.target.value)} placeholder="+254..." />{errors.parentWhatsapp && <span className="error-text">{errors.parentWhatsapp}</span>}</label>
-                <label>Preferred Contact<select value={formData.preferredContactMethod} onChange={(e) => updateField("preferredContactMethod", e.target.value as ContactMethod)}><option value="">Select one</option><option value="whatsapp">WhatsApp</option><option value="email">Email</option><option value="phone_call">Phone Call</option></select>{errors.preferredContactMethod && <span className="error-text">{errors.preferredContactMethod}</span>}</label>
+                <label>
+                  Student Name
+                  <input value={formData.studentName} onChange={(e) => updateField("studentName", e.target.value)} placeholder="Student full name" />
+                  {errors.studentName && <span className="error-text">{errors.studentName}</span>}
+                </label>
+                <label>
+                  Student Age
+                  <input type="number" value={formData.studentAge} onChange={(e) => updateField("studentAge", e.target.value)} placeholder="Age" />
+                  {errors.studentAge && <span className="error-text">{errors.studentAge}</span>}
+                </label>
+                <label>
+                  School Name
+                  <input value={formData.currentSchool} onChange={(e) => updateField("currentSchool", e.target.value)} placeholder="School name" />
+                  {errors.currentSchool && <span className="error-text">{errors.currentSchool}</span>}
+                </label>
+                <label>
+                  Country
+                  <input value={formData.country} onChange={(e) => updateField("country", e.target.value)} placeholder="Country" />
+                  <span className="country-mpesa-hint">Enter "Kenya" to see M-Pesa payment option</span>
+                  {errors.country && <span className="error-text">{errors.country}</span>}
+                </label>
+                <label>
+                  Parent/Guardian Name
+                  <input value={formData.parentName} onChange={(e) => updateField("parentName", e.target.value)} placeholder="Parent full name" />
+                  {errors.parentName && <span className="error-text">{errors.parentName}</span>}
+                </label>
+                <label>
+                  Parent Email
+                  <input type="email" value={formData.parentEmail} onChange={(e) => updateField("parentEmail", e.target.value)} placeholder="parent@email.com" />
+                  {errors.parentEmail && <span className="error-text">{errors.parentEmail}</span>}
+                </label>
+                <label>
+                  WhatsApp Number
+                  <input value={formData.parentWhatsapp} onChange={(e) => updateField("parentWhatsapp", e.target.value)} placeholder="+254..." />
+                  {errors.parentWhatsapp && <span className="error-text">{errors.parentWhatsapp}</span>}
+                </label>
+                <label>
+                  Preferred Contact
+                  <select value={formData.preferredContactMethod} onChange={(e) => updateField("preferredContactMethod", e.target.value as ContactMethod)}>
+                    <option value="">Select one</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="email">Email</option>
+                    <option value="phone_call">Phone Call</option>
+                  </select>
+                  {errors.preferredContactMethod && <span className="error-text">{errors.preferredContactMethod}</span>}
+                </label>
               </div>
 
               {errors.selection && <p className="error-text">{errors.selection}</p>}
