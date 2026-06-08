@@ -32,11 +32,11 @@ serve(async (req) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${re_3HYjPxbf_JJrNkNU2XcPhXkcHZYzbip6M}`,
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
         from: "PUMaC Africa <notifications@learningsprouts.school>",
-        to: ["learningsprouts@proton.me"],
+        to: ["ask@learningsprouts.school"],
         subject: `New PUMaC Registration: ${record.student_name} — $${record.total_usd}`,
         html: emailBody,
       }),
