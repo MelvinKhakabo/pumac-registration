@@ -234,6 +234,50 @@ button {
   margin: 12px 0;
 }
 
+/* ── Registration closed badge ── */
+.registration-closed-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #7a8495;
+  background: rgba(20, 32, 51, 0.06);
+  border: 1px solid rgba(20, 32, 51, 0.12);
+  border-radius: 999px;
+  padding: 8px 16px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Competition deadline badge on pricing card ── */
+.competition-deadline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #a85700;
+  background: #fff4e6;
+  border: 1px solid rgba(244, 124, 32, 0.25);
+  border-radius: 999px;
+  padding: 5px 12px;
+  margin: 8px 0 12px;
+}
+
+/* ── Modal deadline notice ── */
+.modal-deadline-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #a85700;
+  background: #fff4e6;
+  border: 1px solid rgba(244, 124, 32, 0.25);
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+}
+
 /* ── Mock test location tag ── */
 .mock-test-location {
   display: flex;
@@ -426,7 +470,203 @@ button {
   margin: 0;
 }
 
-/* ── Final CTA wrap (separates CTA from footer) ── */
+/* ── No months message ── */
+.no-months-message {
+  color: #5c6678;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  grid-column: 1 / -1;
+  padding: 20px;
+  background: rgba(20, 32, 51, 0.03);
+  border-radius: 14px;
+  text-align: center;
+}
+
+/* ── Competition Rules Section ── */
+.rules-overview-cards {
+  margin-bottom: 56px;
+}
+
+.rules-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rules-card span {
+  font-size: 2rem;
+}
+
+.rules-card h3 {
+  font-size: 1.1rem;
+  font-weight: 900;
+  margin: 0;
+  color: #142033;
+}
+
+.rules-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rules-list li {
+  color: #5c6678;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  padding-left: 16px;
+  position: relative;
+}
+
+.rules-list li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: #f47c20;
+  font-weight: 900;
+}
+
+/* ── Competition Flow ── */
+.competition-flow-section {
+  background: white;
+  border: 1px solid rgba(20, 32, 51, 0.08);
+  border-radius: 28px;
+  padding: 48px;
+  box-shadow: 0 18px 50px rgba(20, 32, 51, 0.06);
+}
+
+.flow-title {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #142033;
+  margin: 0 0 40px;
+}
+
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.flow-step {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 24px;
+  position: relative;
+}
+
+.flow-step:not(.flow-step--last) {
+  padding-bottom: 36px;
+}
+
+/* Vertical connecting line */
+.flow-connector {
+  position: absolute;
+  left: 31px;
+  top: 64px;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(244, 124, 32, 0.3), rgba(244, 124, 32, 0.1));
+}
+
+.flow-step-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: #fff4e6;
+  border: 2px solid rgba(244, 124, 32, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.flow-step-content {
+  padding-top: 8px;
+}
+
+.flow-step-number {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: #f47c20;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.flow-step-content h4 {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #142033;
+  margin: 0 0 8px;
+}
+
+.flow-step-content p {
+  color: #5c6678;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  margin: 0 0 10px;
+}
+
+.flow-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #142033;
+  background: rgba(20, 32, 51, 0.06);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.flow-home-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1a6e3c;
+  background: #e6f4ec;
+  border: 1px solid rgba(26, 110, 60, 0.2);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+/* ── Mini events note ── */
+.mini-events-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 40px;
+  padding: 20px 24px;
+  background: #fff4e6;
+  border: 1px solid rgba(244, 124, 32, 0.2);
+  border-left: 4px solid #f47c20;
+  border-radius: 14px;
+}
+
+.mini-events-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.mini-events-note p {
+  color: #5c6678;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ── Final CTA wrap ── */
 .final-cta-wrap {
   background: #fff8ef;
   padding: 72px 8%;
@@ -777,7 +1017,8 @@ textarea {
 @media (max-width: 900px) {
   .cards-grid,
   .cards-grid.three,
-  .registration-modal {
+  .registration-modal,
+  .rules-overview-cards {
     grid-template-columns: 1fr;
   }
 
@@ -826,7 +1067,49 @@ textarea {
   .payment-method-toggle {
     grid-template-columns: 1fr;
   }
+
+  .competition-flow-section {
+    padding: 28px 20px;
+  }
+
+  .flow-step {
+    grid-template-columns: 48px 1fr;
+    gap: 16px;
+  }
+
+  .flow-step-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+    border-radius: 14px;
+  }
+
+  .flow-connector {
+    left: 23px;
+    top: 48px;
+  }
 }
+
+/* ── Training month topic pill ── */
+.option-card-topic {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #a85700;
+  background: #fff4e6;
+  border: 1px solid rgba(244, 124, 32, 0.3);
+  border-radius: 999px;
+  padding: 3px 10px;
+  width: fit-content;
+  letter-spacing: 0.02em;
+}
+
+.option-card.selected .option-card-topic {
+  background: rgba(244, 124, 32, 0.15);
+  border-color: rgba(244, 124, 32, 0.5);
+}
+
 
 
 

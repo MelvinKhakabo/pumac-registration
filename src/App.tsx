@@ -40,14 +40,56 @@ type FormData = {
 };
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-const KES_RATE = 130; // 1 USD = 130 KES
+const KES_RATE = 130;
 
-const trainingMonths = [
-  { id: "july-2026", label: "July 2026", dates: "July 4 – July 25", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
-  { id: "august-2026", label: "August 2026", dates: "August 5 – August 26", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
-  { id: "october-2026", label: "October 2026", dates: "October 3 – October 24", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
-  { id: "november-2026", label: "November 2026", dates: "November 7 – November 28", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
-  { id: "january-2027", label: "January 2027", dates: "January 2 – January 23", time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)", priceUsd: 62 },
+const COMPETITION_DEADLINE = new Date("2027-01-23T23:59:59");
+
+const allTrainingMonths = [
+  {
+    id: "july-2026",
+    label: "July 2026",
+    dates: "July 4 – July 25",
+    time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    topic: "Algebra",
+    priceUsd: 62,
+    closeDate: new Date("2026-07-25T23:59:59"),
+  },
+  {
+    id: "august-2026",
+    label: "August 2026",
+    dates: "August 5 – August 26",
+    time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    topic: "Geometry",
+    priceUsd: 62,
+    closeDate: new Date("2026-08-26T23:59:59"),
+  },
+  {
+    id: "october-2026",
+    label: "October 2026",
+    dates: "October 3 – October 24",
+    time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    topic: "Combinatorics",
+    priceUsd: 62,
+    closeDate: new Date("2026-10-24T23:59:59"),
+  },
+  {
+    id: "november-2026",
+    label: "November 2026",
+    dates: "November 7 – November 28",
+    time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    topic: "Algebra",
+    priceUsd: 62,
+    closeDate: new Date("2026-11-28T23:59:59"),
+  },
+  {
+    id: "january-2027",
+    label: "January 2027",
+    dates: "January 2 – January 23",
+    time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    topic: "Geometry",
+    priceUsd: 62,
+    closeDate: new Date("2027-01-23T23:59:59"),
+  },
 ];
 
 const mockTests = [
@@ -80,7 +122,15 @@ function isKenya(country: string) {
   return country.trim().toLowerCase() === "kenya";
 }
 
+function isCompetitionOpen() {
+  return new Date() <= COMPETITION_DEADLINE;
+}
+
 function App() {
+  const now = new Date();
+  const trainingMonths = allTrainingMonths.filter((month) => now <= month.closeDate);
+  const allTrainingClosed = trainingMonths.length === 0;
+
   const [modalOpen, setModalOpen] = useState(false);
   const [programType, setProgramType] = useState<ProgramType>("training");
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
@@ -93,8 +143,8 @@ function App() {
   const [stkPending, setStkPending] = useState(false);
 
   const kenyanUser = isKenya(formData.country);
+  const competitionOpen = isCompetitionOpen();
 
-  // Reset payment method to card when country changes away from Kenya
   useEffect(() => {
     if (!kenyanUser) setPaymentMethod("card");
   }, [kenyanUser]);
@@ -126,6 +176,8 @@ function App() {
   }
 
   function openRegistration(type: ProgramType) {
+    if (type === "competition" && !competitionOpen) return;
+    if (type === "training" && allTrainingClosed) return;
     setProgramType(type);
     setModalOpen(true);
     setSelectedMonths([]);
@@ -170,7 +222,12 @@ function App() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  async function saveRegistration(reference: string, amountInSubunit: number, currency: "USD" | "KES") {
+  // ── STEP 1: Save registration as "pending" BEFORE opening Paystack ──
+  async function createPendingRegistration(
+    reference: string,
+    amountInSubunit: number,
+    currency: "USD" | "KES"
+  ): Promise<string> {
     const { data: programData, error: programError } = await supabase
       .from("programs")
       .select("id")
@@ -207,7 +264,7 @@ function App() {
         preferred_contact_method: formData.preferredContactMethod,
         total_usd: totalUsd,
         paystack_amount_subunit: amountInSubunit,
-        payment_status: "paid",
+        payment_status: "pending",
         paystack_reference: reference,
       })
       .select()
@@ -215,8 +272,11 @@ function App() {
 
     if (regError || !registration) throw regError || new Error("Registration failed");
 
+    // Save selections immediately so they're not lost
     if (programType === "training") {
-      const { data: months, error } = await supabase.from("training_months").select("id, slug");
+      const { data: months, error } = await supabase
+        .from("training_months")
+        .select("id, slug");
       if (error) throw error;
 
       const rows = months
@@ -224,13 +284,17 @@ function App() {
         .map((month) => ({ registration_id: registration.id, training_month_id: month.id }));
 
       if (rows?.length) {
-        const { error: insertError } = await supabase.from("registration_training_months").insert(rows);
+        const { error: insertError } = await supabase
+          .from("registration_training_months")
+          .insert(rows);
         if (insertError) throw insertError;
       }
     }
 
     if (programType === "mock-test") {
-      const { data: mocks, error } = await supabase.from("mock_tests").select("id, slug");
+      const { data: mocks, error } = await supabase
+        .from("mock_tests")
+        .select("id, slug");
       if (error) throw error;
 
       const rows = mocks
@@ -238,13 +302,18 @@ function App() {
         .map((mock) => ({ registration_id: registration.id, mock_test_id: mock.id }));
 
       if (rows?.length) {
-        const { error: insertError } = await supabase.from("registration_mock_tests").insert(rows);
+        const { error: insertError } = await supabase
+          .from("registration_mock_tests")
+          .insert(rows);
         if (insertError) throw insertError;
       }
     }
 
     if (programType === "competition" && competitionType === "team-of-8") {
-      const members = formData.teamMembers.split("\n").map((name) => name.trim()).filter(Boolean);
+      const members = formData.teamMembers
+        .split("\n")
+        .map((name) => name.trim())
+        .filter(Boolean);
 
       if (members.length) {
         const { error } = await supabase.from("competition_team_members").insert(
@@ -258,8 +327,25 @@ function App() {
       }
     }
 
+    return registration.id;
+  }
+
+  // ── STEP 2a: Update to "paid" after successful payment ──
+  async function markRegistrationPaid(
+    registrationId: string,
+    reference: string,
+    amountInSubunit: number,
+    currency: "USD" | "KES"
+  ) {
+    const { error: updateError } = await supabase
+      .from("registrations")
+      .update({ payment_status: "paid" })
+      .eq("id", registrationId);
+
+    if (updateError) throw updateError;
+
     const { error: paymentError } = await supabase.from("payments").insert({
-      registration_id: registration.id,
+      registration_id: registrationId,
       reference,
       status: "paid",
       amount_usd: totalUsd,
@@ -271,7 +357,15 @@ function App() {
     if (paymentError) throw paymentError;
   }
 
-  function handlePayment() {
+  // ── STEP 2b: Update to "cancelled" if Paystack is closed ──
+  async function markRegistrationCancelled(registrationId: string) {
+    await supabase
+      .from("registrations")
+      .update({ payment_status: "cancelled" })
+      .eq("id", registrationId);
+  }
+
+  async function handlePayment() {
     if (!validateForm()) return;
 
     if (!PAYSTACK_PUBLIC_KEY) {
@@ -285,15 +379,33 @@ function App() {
     }
 
     const reference = `LS-PUMAC-${Date.now()}`;
-    const selectedTrainingMonths = trainingMonths.filter((month) => selectedMonths.includes(month.id));
+    const selectedTrainingMonths = allTrainingMonths.filter((month) =>
+      selectedMonths.includes(month.id)
+    );
     const selectedMockTests = mockTests.filter((mock) => selectedMocks.includes(mock.id));
+
+    // ── Save to DB BEFORE opening Paystack ──
+    let registrationId: string;
+    try {
+      if (kenyanUser && paymentMethod === "mpesa") {
+        const amountInKesCents = Math.round(totalKes * 100);
+        registrationId = await createPendingRegistration(reference, amountInKesCents, "KES");
+      } else {
+        const amountInUsdCents = Math.round(totalUsd * 100);
+        registrationId = await createPendingRegistration(reference, amountInUsdCents, "USD");
+      }
+    } catch (error) {
+      console.error("Failed to save registration before payment:", error);
+      alert(
+        "Something went wrong saving your details. Please try again or contact ask@learningsprouts.school."
+      );
+      return;
+    }
 
     const paystack = new window.PaystackPop();
 
     if (kenyanUser && paymentMethod === "mpesa") {
-      // M-Pesa STK push via Paystack — charge in KES
       const amountInKesCents = Math.round(totalKes * 100);
-
       setStkPending(true);
 
       paystack.newTransaction({
@@ -319,20 +431,27 @@ function App() {
         onSuccess: async (response) => {
           setStkPending(false);
           try {
-            await saveRegistration(response.reference, amountInKesCents, "KES");
+            await markRegistrationPaid(registrationId, response.reference, amountInKesCents, "KES");
             window.location.href = `/thank-you.html?reference=${response.reference}`;
           } catch (error) {
             console.error(error);
-            alert("Payment succeeded but saving failed. Please contact support.");
+            alert(
+              `Payment successful (ref: ${response.reference}) but we could not update your record. ` +
+              `Your details are saved. Please email ask@learningsprouts.school with this reference.`
+            );
           }
         },
-        onCancel: () => {
+        onCancel: async () => {
           setStkPending(false);
-          alert("Payment window closed. You can try again when ready.");
+          try {
+            await markRegistrationCancelled(registrationId);
+          } catch (error) {
+            console.error("Failed to mark registration as cancelled:", error);
+          }
+          alert("Payment window closed. Your details have been saved — you can complete payment any time by registering again.");
         },
       });
     } else {
-      // Standard card payment in USD
       const amountInUsdCents = Math.round(totalUsd * 100);
 
       paystack.newTransaction({
@@ -356,15 +475,23 @@ function App() {
         },
         onSuccess: async (response) => {
           try {
-            await saveRegistration(response.reference, amountInUsdCents, "USD");
+            await markRegistrationPaid(registrationId, response.reference, amountInUsdCents, "USD");
             window.location.href = `/thank-you.html?reference=${response.reference}`;
           } catch (error) {
             console.error(error);
-            alert("Payment succeeded but saving failed. Please contact support.");
+            alert(
+              `Payment successful (ref: ${response.reference}) but we could not update your record. ` +
+              `Your details are saved. Please email ask@learningsprouts.school with this reference.`
+            );
           }
         },
-        onCancel: () => {
-          alert("Payment window closed. You can try again when ready.");
+        onCancel: async () => {
+          try {
+            await markRegistrationCancelled(registrationId);
+          } catch (error) {
+            console.error("Failed to mark registration as cancelled:", error);
+          }
+          alert("Payment window closed. Your details have been saved — you can complete payment any time by registering again.");
         },
       });
     }
@@ -380,6 +507,7 @@ function App() {
           <a href="#focus" onClick={(e) => handleNavClick(e, "focus")}>Program</a>
           <a href="#schedule" onClick={(e) => handleNavClick(e, "schedule")}>Schedule</a>
           <a href="#pricing" onClick={(e) => handleNavClick(e, "pricing")}>Pricing</a>
+          <a href="#rules" onClick={(e) => handleNavClick(e, "rules")}>Rules</a>
           <a href="#faqs" onClick={(e) => handleNavClick(e, "faqs")}>FAQs</a>
           <a href="#register" className="nav-register-link" onClick={(e) => handleNavClick(e, "register")}>Register</a>
           <button onClick={() => openRegistration("training")}>Register Now</button>
@@ -410,7 +538,7 @@ function App() {
         </div>
       </section>
 
-      {/* ── 2. Why Students Join (moved up) ── */}
+      {/* ── 2. About ── */}
       <section className="section learning-sprouts-section" id="about">
         <p className="section-label">About Learning Sprouts</p>
         <h2>Future Skills. Real Growth.</h2>
@@ -422,7 +550,7 @@ function App() {
         </p>
       </section>
 
-      {/* ── 3. Three Ways to Participate (moved up) ── */}
+      {/* ── 3. Three Ways to Participate ── */}
       <section className="section" id="schedule">
         <p className="section-label">Program structure</p>
         <h2>Three Ways to Participate</h2>
@@ -431,7 +559,11 @@ function App() {
             <h3>Trainings</h3>
             <p>Weekly weekend online sessions. 1.5 hours per session, 4 sessions per month, covering all competition topics.</p>
             <div className="button-row card-actions">
-              <button onClick={() => openRegistration("training")}>Register for Training</button>
+              {allTrainingClosed ? (
+                <span className="registration-closed-badge">Registration Closed</span>
+              ) : (
+                <button onClick={() => openRegistration("training")}>Register for Training</button>
+              )}
             </div>
           </article>
 
@@ -447,7 +579,11 @@ function App() {
             <h3>Competition Day</h3>
             <p>January 30, 2027. Full-day competition with individual and team rounds at international standard.</p>
             <div className="button-row card-actions">
-              <button onClick={() => openRegistration("competition")}>Register for Competition</button>
+              {competitionOpen ? (
+                <button onClick={() => openRegistration("competition")}>Register for Competition</button>
+              ) : (
+                <span className="registration-closed-badge">Registration Closed</span>
+              )}
             </div>
           </article>
         </div>
@@ -467,8 +603,6 @@ function App() {
 
       {/* ── 5 & 6. Registration sections ── */}
       <section className="section register-split-section" id="register">
-
-        {/* ── 5. Kenyan Participants ── */}
         <div className="register-group" id="register-kenya">
           <div className="register-group-header">
             <p className="section-label">Kenyan participants</p>
@@ -494,7 +628,11 @@ function App() {
               <p>Form a team of 8 and register for PUMaC at a discounted rate. Collaborate, compete, and represent your school or community together.</p>
               <div className="mpesa-badge">M-Pesa accepted</div>
               <div className="card-actions">
-                <button onClick={() => openRegistration("competition")}>Register a Team</button>
+                {competitionOpen ? (
+                  <button onClick={() => openRegistration("competition")}>Register a Team</button>
+                ) : (
+                  <span className="registration-closed-badge">Registration Closed</span>
+                )}
               </div>
             </article>
 
@@ -511,7 +649,6 @@ function App() {
           </div>
         </div>
 
-        {/* ── 6. Other Participants ── */}
         <div className="register-group register-group--other" id="register-other">
           <div className="register-group-header">
             <p className="section-label">Other participants</p>
@@ -535,7 +672,11 @@ function App() {
               <h4>Team Registration</h4>
               <p>Form a team of 8 and register for PUMaC at a discounted rate. Collaborate, compete, and represent your school or community together.</p>
               <div className="card-actions">
-                <button onClick={() => openRegistration("competition")}>Register a Team</button>
+                {competitionOpen ? (
+                  <button onClick={() => openRegistration("competition")}>Register a Team</button>
+                ) : (
+                  <span className="registration-closed-badge">Registration Closed</span>
+                )}
               </div>
             </article>
 
@@ -569,7 +710,11 @@ function App() {
             <strong>$62/month</strong>
             <p>Weekly weekend online training sessions.</p>
             <div className="button-row card-actions">
-              <button onClick={() => openRegistration("training")}>Register for Training</button>
+              {allTrainingClosed ? (
+                <span className="registration-closed-badge">Registration Closed</span>
+              ) : (
+                <button onClick={() => openRegistration("training")}>Register for Training</button>
+              )}
             </div>
           </article>
 
@@ -587,50 +732,137 @@ function App() {
             <h3>Competition Fee</h3>
             <strong>$12.50/student</strong>
             <p>Or $100 per team of 8 students.</p>
+            <div className="competition-deadline-badge">
+              🗓 Registration closes January 23, 2027
+            </div>
             <div className="button-row card-actions">
-              <button onClick={() => openRegistration("competition")}>Register for Competition</button>
+              {competitionOpen ? (
+                <button onClick={() => openRegistration("competition")}>Register for Competition</button>
+              ) : (
+                <span className="registration-closed-badge">Registration Closed</span>
+              )}
             </div>
           </article>
         </div>
       </section>
 
-      {/* ── 8. FAQ ── */}
+      {/* ── 8. Competition Rules ── */}
+      <section className="section" id="rules">
+        <p className="section-label">Competition Rules</p>
+        <h2>How PUMaC Africa Works</h2>
+
+        <div className="cards-grid three rules-overview-cards">
+          <article className="info-card rules-card">
+            <span>✅</span>
+            <h3>Eligibility</h3>
+            <ul className="rules-list">
+              <li>Must be under 20 on competition day (January 30, 2027)</li>
+              <li>Must not be enrolled full-time in a post-secondary institution</li>
+              <li>Open to all African students aged 13–18</li>
+              <li>Virtual participation from anywhere in Africa</li>
+            </ul>
+          </article>
+
+          <article className="info-card rules-card">
+            <span>🏆</span>
+            <h3>Format</h3>
+            <ul className="rules-list">
+              <li>Individual registration — $12.50 per student</li>
+              <li>Team of 8 — $100 per team</li>
+              <li>All participants compete in Individual and Team rounds</li>
+              <li>Individuals are grouped into teams of 8 for Power and Team rounds</li>
+            </ul>
+          </article>
+
+          <article className="info-card rules-card">
+            <span>🎯</span>
+            <h3>Divisions</h3>
+            <ul className="rules-list">
+              <li><strong>Division A</strong> — For experienced competitors and students who trained with Learning Sprouts</li>
+              <li><strong>Division B</strong> — For students newer to mathematics competitions</li>
+              <li>Awards calculated separately per division</li>
+              <li>Division placement reviewed by PUMaC organisers</li>
+            </ul>
+          </article>
+        </div>
+
+        <div className="competition-flow-section">
+          <h3 className="flow-title">Competition Flow</h3>
+          <div className="flow-steps">
+            <div className="flow-step">
+              <div className="flow-step-icon">⚡</div>
+              <div className="flow-step-content">
+                <div className="flow-step-number">01</div>
+                <h4>Power Round</h4>
+                <p>Released one week before competition day. Teams collaborate and submit solutions online.</p>
+                <span className="flow-home-tag">🏠 Done online from the comfort of your home</span>
+              </div>
+              <div className="flow-connector" />
+            </div>
+            <div className="flow-step">
+              <div className="flow-step-icon">✏️</div>
+              <div className="flow-step-content">
+                <div className="flow-step-number">02</div>
+                <h4>Individual Tests</h4>
+                <p>Choose 2 subjects from Algebra, Combinatorics, Geometry, or Number Theory. 60 minutes each. No calculators.</p>
+                <span className="flow-tag">No collaboration · No calculators</span>
+              </div>
+              <div className="flow-connector" />
+            </div>
+            <div className="flow-step">
+              <div className="flow-step-icon">👥</div>
+              <div className="flow-step-content">
+                <div className="flow-step-number">03</div>
+                <h4>Team Test</h4>
+                <p>30-minute timed test. Collaboration is encouraged. One answer sheet submitted per team.</p>
+                <span className="flow-tag">Collaboration encouraged</span>
+              </div>
+              <div className="flow-connector" />
+            </div>
+            <div className="flow-step">
+              <div className="flow-step-icon">🏆</div>
+              <div className="flow-step-content">
+                <div className="flow-step-number">04</div>
+                <h4>Individual Finals</h4>
+                <p>Top 10 individuals per subject are invited. 90-minute proof-based exam. No collaboration allowed.</p>
+                <span className="flow-tag">Invitation only · Top 10 per subject</span>
+              </div>
+              <div className="flow-connector" />
+            </div>
+            <div className="flow-step flow-step--last">
+              <div className="flow-step-icon">🎯</div>
+              <div className="flow-step-content">
+                <div className="flow-step-number">05</div>
+                <h4>Scoring & Awards</h4>
+                <p>Overall score combines Power Round + Individual Tests + Team Test. Division A and Division B winners announced separately.</p>
+                <span className="flow-tag">Combined score · Separate division awards</span>
+              </div>
+            </div>
+          </div>
+          <div className="mini-events-note">
+            <span className="mini-events-icon">🎉</span>
+            <p>Mini-events will take place during Individual Finals and scoring — participants are welcome to socialise, network, and take part.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 9. FAQ ── */}
       <section className="section" id="faqs">
         <p className="section-label">FAQs</p>
         <h2>Frequently Asked Questions</h2>
         <div className="faq-list">
-          <details>
-            <summary>Who can join Princeton University Mathematics Competition Africa?</summary>
-            <p>PUMaC is ideal for high school students aged 13–18, but any high-achieving student who hasn't hit their 20th birthday by the competition date can compete.</p>
-          </details>
-          <details>
-            <summary>Are the training sessions online?</summary>
-            <p>Yes. Training sessions are fully online and held on weekends so they fit around regular school schedules.</p>
-          </details>
-          <details>
-            <summary>What topics are covered?</summary>
-            <p>Training covers Algebra, Number Theory, Geometry, and Combinatorics.</p>
-          </details>
-          <details>
-            <summary>When are the mock tests?</summary>
-            <p>Mock tests are scheduled for September 26, 2026 and November 28, 2026. In-person mock tests are available for learners based in Nairobi at the Learning Sprouts Center, Loresho Ridge, next to Wasp and Sprout.</p>
-          </details>
-          <details>
-            <summary>When is the competition?</summary>
-            <p>The competition date is January 30, 2027.</p>
-          </details>
-          <details>
-            <summary>Can students register as a team?</summary>
-            <p>Yes. Students can register individually or as a team of up to 8 students.</p>
-          </details>
-          <details>
-            <summary>Can Kenyan students pay in KSh via M-Pesa?</summary>
-            <p>Yes. Kenyan participants can pay via M-Pesa STK push. Simply fill in your details, select Kenya as your country, and choose M-Pesa as your payment method. You'll receive a prompt on your phone to complete the payment.</p>
-          </details>
+          <details><summary>Who can join Princeton University Mathematics Competition Africa?</summary><p>PUMaC is ideal for high school students aged 13–18, but any high-achieving student who hasn't hit their 20th birthday by the competition date can compete.</p></details>
+          <details><summary>Are the training sessions online?</summary><p>Yes. Training sessions are fully online and held on weekends so they fit around regular school schedules.</p></details>
+          <details><summary>What topics are covered?</summary><p>Training covers Algebra, Number Theory, Geometry, and Combinatorics.</p></details>
+          <details><summary>When are the mock tests?</summary><p>Mock tests are scheduled for September 26, 2026 and November 28, 2026. In-person mock tests are available for learners based in Nairobi at the Learning Sprouts Center, Loresho Ridge, next to Wasp and Sprout.</p></details>
+          <details><summary>When is the competition?</summary><p>The competition date is January 30, 2027.</p></details>
+          <details><summary>When does competition registration close?</summary><p>Competition registration closes on January 23, 2027. Register early to secure your spot.</p></details>
+          <details><summary>Can students register as a team?</summary><p>Yes. Students can register individually or as a team of up to 8 students.</p></details>
+          <details><summary>Can Kenyan students pay in KSh via M-Pesa?</summary><p>Yes. Kenyan participants can pay via M-Pesa STK push. Simply fill in your details, select Kenya as your country, and choose M-Pesa as your payment method. You'll receive a prompt on your phone to complete the payment.</p></details>
         </div>
       </section>
 
-      {/* ── 9. Final CTA strip ── */}
+      {/* ── 10. Final CTA strip ── */}
       <div className="final-cta-wrap">
         <section className="final-cta-strip">
           <div className="final-cta-inner">
@@ -650,13 +882,18 @@ function App() {
           <section className="registration-modal">
             <form className="registration-form">
               <button type="button" className="modal-close" onClick={() => setModalOpen(false)}>×</button>
-
               <p className="eyebrow">Registration</p>
               <h2>
                 {programType === "training" && "Register for Training"}
                 {programType === "mock-test" && "Register for Mock Test"}
                 {programType === "competition" && "Register for Competition"}
               </h2>
+
+              {programType === "competition" && (
+                <div className="modal-deadline-notice">
+                  🗓 Registration closes <strong>January 23, 2027</strong>
+                </div>
+              )}
 
               <div className="form-grid">
                 <label>Student Name<input value={formData.studentName} onChange={(e) => updateField("studentName", e.target.value)} placeholder="Student full name" />{errors.studentName && <span className="error-text">{errors.studentName}</span>}</label>
@@ -673,11 +910,24 @@ function App() {
 
               {programType === "training" && (
                 <div className="option-grid">
-                  {trainingMonths.map((month) => (
-                    <button type="button" key={month.id} className={selectedMonths.includes(month.id) ? "option-card selected" : "option-card"} onClick={() => setSelectedMonths((cur) => cur.includes(month.id) ? cur.filter((id) => id !== month.id) : [...cur, month.id])}>
-                      <strong>{month.label}</strong><span>{month.dates}</span><small>{month.time}</small><b>$62</b>
-                    </button>
-                  ))}
+                  {trainingMonths.length === 0 ? (
+                    <p className="no-months-message">All training sessions have closed. Check back for future intakes.</p>
+                  ) : (
+                    trainingMonths.map((month) => (
+                      <button
+                        type="button"
+                        key={month.id}
+                        className={selectedMonths.includes(month.id) ? "option-card selected" : "option-card"}
+                        onClick={() => setSelectedMonths((cur) => cur.includes(month.id) ? cur.filter((id) => id !== month.id) : [...cur, month.id])}
+                      >
+                        <strong>{month.label}</strong>
+                        <span>{month.dates}</span>
+                        <small>{month.time}</small>
+                        <span className="option-card-topic">{month.topic}</span>
+                        <b>{formatUsd(month.priceUsd)}</b>
+                      </button>
+                    ))
+                  )}
                 </div>
               )}
 
@@ -697,7 +947,6 @@ function App() {
                     <button type="button" className={competitionType === "individual" ? "option-card selected" : "option-card"} onClick={() => setCompetitionType("individual")}><strong>Individual Registration</strong><span>January 30, 2027</span><b>$12.50</b></button>
                     <button type="button" className={competitionType === "team-of-8" ? "option-card selected" : "option-card"} onClick={() => setCompetitionType("team-of-8")}><strong>Team Registration</strong><span>Up to 8 students</span><b>$100</b></button>
                   </div>
-
                   {competitionType === "team-of-8" && (
                     <div className="form-grid team-fields">
                       <label>Team Name<input value={formData.teamName} onChange={(e) => updateField("teamName", e.target.value)} placeholder="Team name" />{errors.teamName && <span className="error-text">{errors.teamName}</span>}</label>
@@ -708,11 +957,8 @@ function App() {
               )}
             </form>
 
-            {/* ── Payment Summary sidebar ── */}
             <aside className="payment-summary">
               <p className="eyebrow">Payment Summary</p>
-
-              {/* Amount display — changes based on Kenya + M-Pesa selection */}
               {kenyanUser && paymentMethod === "mpesa" ? (
                 <>
                   <h2 className="payment-amount">{formatKes(totalKes)}</h2>
@@ -721,41 +967,20 @@ function App() {
               ) : (
                 <h2 className="payment-amount">{formatUsd(totalUsd)}</h2>
               )}
-
               <div className="summary-line">
                 <span>Amount charged</span>
-                <strong>
-                  {kenyanUser && paymentMethod === "mpesa"
-                    ? formatKes(totalKes)
-                    : formatUsd(totalUsd)}
-                </strong>
+                <strong>{kenyanUser && paymentMethod === "mpesa" ? formatKes(totalKes) : formatUsd(totalUsd)}</strong>
               </div>
-
-              {/* Payment method toggle — only shown for Kenyan users */}
               {kenyanUser && (
                 <div className="payment-method-section">
                   <p className="payment-method-label">Payment method</p>
                   <div className="payment-method-toggle">
-                    <button
-                      type="button"
-                      className={`toggle-option${paymentMethod === "card" ? " active" : ""}`}
-                      onClick={() => setPaymentMethod("card")}
-                    >
-                      💳 Card (USD)
-                    </button>
-                    <button
-                      type="button"
-                      className={`toggle-option${paymentMethod === "mpesa" ? " active" : ""}`}
-                      onClick={() => setPaymentMethod("mpesa")}
-                    >
-                      📱 M-Pesa (KSh)
-                    </button>
+                    <button type="button" className={`toggle-option${paymentMethod === "card" ? " active" : ""}`} onClick={() => setPaymentMethod("card")}>💳 Card (USD)</button>
+                    <button type="button" className={`toggle-option${paymentMethod === "mpesa" ? " active" : ""}`} onClick={() => setPaymentMethod("mpesa")}>📱 M-Pesa (KSh)</button>
                   </div>
                 </div>
               )}
-
               {errors.total && <p className="error-text">{errors.total}</p>}
-
               {stkPending ? (
                 <div className="stk-pending">
                   <div className="stk-icon">📱</div>
@@ -764,23 +989,16 @@ function App() {
                 </div>
               ) : (
                 <button type="button" onClick={handlePayment} disabled={stkPending}>
-                  {kenyanUser && paymentMethod === "mpesa"
-                    ? "Pay with M-Pesa"
-                    : "Continue to Payment"}
+                  {kenyanUser && paymentMethod === "mpesa" ? "Pay with M-Pesa" : "Continue to Payment"}
                 </button>
               )}
-
-              <p>
-                {kenyanUser && paymentMethod === "mpesa"
-                  ? "Payment processed securely via M-Pesa through Paystack."
-                  : "Payment will be processed securely in USD through Paystack."}
-              </p>
+              <p>{kenyanUser && paymentMethod === "mpesa" ? "Payment processed securely via M-Pesa through Paystack." : "Payment will be processed securely in USD through Paystack."}</p>
             </aside>
           </section>
         </div>
       )}
 
-      {/* ── Footer (unchanged) ── */}
+      {/* ── Footer ── */}
       <footer className="site-footer">
         <p className="footer-brand">Learning Sprouts</p>
         <div>
@@ -794,4 +1012,6 @@ function App() {
 }
 
 export default App;
+
+
 
