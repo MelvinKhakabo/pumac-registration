@@ -86,7 +86,7 @@ const allTrainingMonths = [
     label: "January 2027",
     dates: "January 2 – January 23",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
-    topic: "Agebra",
+    topic: "Algebra",
     priceUsd: 62,
     closeDate: new Date("2027-01-23T23:59:59"),
   },
