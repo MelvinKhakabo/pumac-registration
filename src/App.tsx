@@ -44,6 +44,19 @@ const KES_RATE = 130;
 
 const COMPETITION_DEADLINE = new Date("2027-01-23T23:59:59");
 
+// ── Early Bird Pricing ──────────────────────────────────────────────────────
+// Individual competition price is $12.50 until July 30 2026 (end of day),
+// then flips automatically to $15.00 from July 31 2026 onwards.
+const EARLY_BIRD_DEADLINE = new Date("2026-07-30T23:59:59");
+const IS_EARLY_BIRD = new Date() < EARLY_BIRD_DEADLINE;
+const COMPETITION_INDIVIDUAL_EARLY_BIRD_PRICE = 12.5;
+const COMPETITION_INDIVIDUAL_STANDARD_PRICE = 15;
+const COMPETITION_INDIVIDUAL_PRICE = IS_EARLY_BIRD
+  ? COMPETITION_INDIVIDUAL_EARLY_BIRD_PRICE
+  : COMPETITION_INDIVIDUAL_STANDARD_PRICE;
+const COMPETITION_TEAM_PRICE = 100;
+// ────────────────────────────────────────────────────────────────────────────
+
 const allTrainingMonths = [
   {
     id: "july-2026",
@@ -126,6 +139,27 @@ function isCompetitionOpen() {
   return new Date() <= COMPETITION_DEADLINE;
 }
 
+// ── Reusable dual-price display for individual competition ─────────────────
+// During early bird: green $12.50 badge (active) + orange $15 badge (dimmed)
+// After July 30:     green $12.50 badge (struck through) + orange $15 badge (active)
+function CompetitionPriceDisplay() {
+  return (
+    <div className="competition-price-stack">
+      <div className={`price-badge price-badge--early${!IS_EARLY_BIRD ? " price-badge--struck" : ""}`}>
+        <span className="price-badge__label">🟢 Early Bird</span>
+        <span className="price-badge__amount">{formatUsd(COMPETITION_INDIVIDUAL_EARLY_BIRD_PRICE)}</span>
+        {IS_EARLY_BIRD && <span className="price-badge__note">Closes Jul 30, 2026</span>}
+      </div>
+      <div className={`price-badge price-badge--standard${IS_EARLY_BIRD ? " price-badge--upcoming" : ""}`}>
+        <span className="price-badge__label">🟠 Standard</span>
+        <span className="price-badge__amount">{formatUsd(COMPETITION_INDIVIDUAL_STANDARD_PRICE)}</span>
+        {IS_EARLY_BIRD && <span className="price-badge__note">From Jul 31, 2026</span>}
+      </div>
+    </div>
+  );
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 function App() {
   const now = new Date();
   const trainingMonths = allTrainingMonths.filter((month) => now <= month.closeDate);
@@ -159,8 +193,8 @@ function App() {
     if (programType === "training") return selectedMonths.length * 62;
     if (programType === "mock-test") return selectedMocks.length * 10;
     if (programType === "competition") {
-      if (competitionType === "individual") return 12.5;
-      if (competitionType === "team-of-8") return 100;
+      if (competitionType === "individual") return COMPETITION_INDIVIDUAL_PRICE;
+      if (competitionType === "team-of-8") return COMPETITION_TEAM_PRICE;
     }
     return 0;
   }, [programType, selectedMonths, selectedMocks, competitionType]);
@@ -226,7 +260,7 @@ function App() {
   async function createPendingRegistration(
     reference: string,
     amountInSubunit: number,
-    _currency: "USD" | "KES"  // prefixed with _ as it's stored via the payment method logic below
+    _currency: "USD" | "KES"
   ): Promise<string> {
     const { data: programData, error: programError } = await supabase
       .from("programs")
@@ -333,7 +367,7 @@ function App() {
   async function markRegistrationPaid(
     registrationId: string,
     reference: string,
-    _amountInSubunit: number,  // prefixed with _ as it's not directly used here
+    _amountInSubunit: number,
     currency: "USD" | "KES"
   ) {
     const { error: updateError } = await supabase
@@ -421,6 +455,7 @@ function App() {
           charge_currency: "KES",
           total_usd: totalUsd,
           total_kes: totalKes,
+          is_early_bird: IS_EARLY_BIRD,
           selected_training_months: selectedTrainingMonths,
           selected_mock_tests: selectedMockTests,
           competition_type: competitionType,
@@ -466,6 +501,7 @@ function App() {
           parent_whatsapp: formData.parentWhatsapp,
           charge_currency: "USD",
           total_usd: totalUsd,
+          is_early_bird: IS_EARLY_BIRD,
           selected_training_months: selectedTrainingMonths,
           selected_mock_tests: selectedMockTests,
           competition_type: competitionType,
@@ -576,6 +612,7 @@ function App() {
           <article className="program-card">
             <h3>Competition Day</h3>
             <p>January 30, 2027. Full-day competition with individual and team rounds at international standard.</p>
+            <CompetitionPriceDisplay />
             <div className="button-row card-actions">
               {competitionOpen ? (
                 <button onClick={() => openRegistration("competition")}>Register for Competition</button>
@@ -728,7 +765,7 @@ function App() {
           <article className="pricing-card pricing-card--featured">
             <div className="pricing-featured-badge">Most popular</div>
             <h3>Competition Fee</h3>
-            <strong>$12.50/student</strong>
+            <CompetitionPriceDisplay />
             <p>Or $100 per team of 8 students.</p>
             <div className="competition-deadline-badge">
               🗓 Registration closes January 23, 2027
@@ -765,11 +802,12 @@ function App() {
             <span>🏆</span>
             <h3>Format</h3>
             <ul className="rules-list">
-              <li>Individual registration — $12.50 per student</li>
+              <li>Individual registration — see pricing below</li>
               <li>Team of 8 — $100 per team</li>
               <li>All participants compete in Individual and Team rounds</li>
               <li>Individuals are grouped into teams of 8 for Power and Team rounds</li>
             </ul>
+            <CompetitionPriceDisplay />
           </article>
 
           <article className="info-card rules-card">
@@ -857,6 +895,7 @@ function App() {
           <details><summary>When does competition registration close?</summary><p>Competition registration closes on January 23, 2027. Register early to secure your spot.</p></details>
           <details><summary>Can students register as a team?</summary><p>Yes. Students can register individually or as a team of up to 8 students.</p></details>
           <details><summary>Can Kenyan students pay in KSh via M-Pesa?</summary><p>Yes. Kenyan participants can pay via M-Pesa STK push. Simply fill in your details, select Kenya as your country, and choose M-Pesa as your payment method. You'll receive a prompt on your phone to complete the payment.</p></details>
+          <details><summary>Is there an early bird price for the competition?</summary><p>Yes. Individual competition registration is $12.50 (early bird) until July 30, 2026. From July 31, 2026, the standard price of $15.00 applies. Team registration remains $100 regardless of timing.</p></details>
         </div>
       </section>
 
@@ -980,9 +1019,27 @@ function App() {
               {programType === "competition" && (
                 <>
                   <div className="option-grid">
-                    <button type="button" className={competitionType === "individual" ? "option-card selected" : "option-card"} onClick={() => setCompetitionType("individual")}><strong>Individual Registration</strong><span>January 30, 2027</span><b>$12.50</b></button>
-                    <button type="button" className={competitionType === "team-of-8" ? "option-card selected" : "option-card"} onClick={() => setCompetitionType("team-of-8")}><strong>Team Registration</strong><span>Up to 8 students</span><b>$100</b></button>
+                    <button
+                      type="button"
+                      className={competitionType === "individual" ? "option-card selected" : "option-card"}
+                      onClick={() => setCompetitionType("individual")}
+                    >
+                      <strong>Individual Registration</strong>
+                      <span>January 30, 2027</span>
+                      <CompetitionPriceDisplay />
+                    </button>
+
+                    <button
+                      type="button"
+                      className={competitionType === "team-of-8" ? "option-card selected" : "option-card"}
+                      onClick={() => setCompetitionType("team-of-8")}
+                    >
+                      <strong>Team Registration</strong>
+                      <span>Up to 8 students</span>
+                      <b>{formatUsd(COMPETITION_TEAM_PRICE)}</b>
+                    </button>
                   </div>
+
                   {competitionType === "team-of-8" && (
                     <div className="form-grid team-fields">
                       <label>Team Name<input value={formData.teamName} onChange={(e) => updateField("teamName", e.target.value)} placeholder="Team name" />{errors.teamName && <span className="error-text">{errors.teamName}</span>}</label>
@@ -1048,8 +1105,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
-
