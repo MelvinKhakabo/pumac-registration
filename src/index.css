@@ -1120,110 +1120,52 @@ textarea {
 placeholder
 
 /* ─────────────────────────────────────────
-   COMPETITION PRICE STACK
-   Side-by-side 50/50 pill badges with gap
+   COMPETITION PRICE DISPLAY
+   Small early bird pill + clean main price
 ───────────────────────────────────────── */
 
-/* Wrapper — row layout, equal halves, gap between */
-.competition-price-stack {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  margin: 14px 0 6px;
-  width: 100%;
-}
-
-/* Each badge takes exactly half the width */
-.price-badge {
-  flex: 1;
+/* Wrapper — column, tight spacing */
+.competition-price-display {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  border-radius: 999px;
-  padding: 10px 16px;
-  min-width: 0;
+  gap: 6px;
+  margin: 8px 0 4px;
 }
 
-/* ── Early Bird — green ── */
-.price-badge--early {
+/* Tiny animated green pill — disappears after Jul 30 automatically */
+.early-bird-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 3px 10px;
+  border-radius: 999px;
   background: #d4edda;
   border: 1px solid #a8d5b5;
-}
-
-.price-badge--early .price-badge__label {
-  font-size: 0.6rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
   color: #1a5c30;
-  white-space: nowrap;
-}
-
-.price-badge--early .price-badge__amount {
-  font-size: 1.15rem;
-  font-weight: 900;
-  color: #1a5c30;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-}
-
-.price-badge--early .price-badge__note {
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: #2d8a52;
-  margin-top: 2px;
+  letter-spacing: 0.01em;
   white-space: nowrap;
+  animation: eb-pulse 2s ease-in-out infinite;
 }
 
-/* Strikethrough after early bird ends */
-.price-badge--struck {
-  opacity: 0.5;
+@keyframes eb-pulse {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(26, 92, 48, 0.15); }
+  50%  { transform: scale(1.04); box-shadow: 0 0 0 4px rgba(26, 92, 48, 0);  }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(26, 92, 48, 0);    }
 }
 
-.price-badge--struck .price-badge__amount {
-  text-decoration: line-through;
-  text-decoration-thickness: 2px;
-}
-
-/* ── Standard — orange ── */
-.price-badge--standard {
-  background: #fff4e6;
-  border: 1px solid rgba(244, 124, 32, 0.3);
-}
-
-.price-badge--standard .price-badge__label {
-  font-size: 0.6rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: #a85700;
-  white-space: nowrap;
-}
-
-.price-badge--standard .price-badge__amount {
-  font-size: 1.15rem;
-  font-weight: 900;
-  color: #f47c20;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-}
-
-.price-badge--standard .price-badge__note {
-  font-size: 0.62rem;
+/* Main price — matches $62/month and $10 style exactly */
+.competition-main-price {
+  display: block;
+  font-size: inherit;
   font-weight: 700;
-  color: #c86a00;
-  margin-top: 2px;
-  white-space: nowrap;
 }
 
-/* Dimmed while early bird is active */
-.price-badge--upcoming {
-  opacity: 0.55;
-}
-
-/* On mobile stack back to column so they don't get too squished */
-@media (max-width: 480px) {
-  .competition-price-stack {
-    flex-direction: column;
-  }
+/* ─────────────────────────────────────────
+   OFFICE HOURS LINE on training cards
+───────────────────────────────────────── */
+.office-hours-time {
+  color: #f28c28;
+  font-weight: 600;
 }

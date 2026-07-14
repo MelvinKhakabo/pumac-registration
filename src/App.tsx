@@ -57,12 +57,14 @@ const COMPETITION_INDIVIDUAL_PRICE = IS_EARLY_BIRD
 const COMPETITION_TEAM_PRICE = 100;
 // ────────────────────────────────────────────────────────────────────────────
 
+// ── Training months — office hours added to every month ───────────────────
 const allTrainingMonths = [
   {
     id: "july-2026",
     label: "July 2026",
     dates: "July 4 – July 25",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
     topic: "Algebra",
     priceUsd: 62,
     closeDate: new Date("2026-07-25T23:59:59"),
@@ -72,6 +74,7 @@ const allTrainingMonths = [
     label: "August 2026",
     dates: "August 5 – August 26",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
     topic: "Geometry",
     priceUsd: 62,
     closeDate: new Date("2026-08-26T23:59:59"),
@@ -81,6 +84,7 @@ const allTrainingMonths = [
     label: "October 2026",
     dates: "October 3 – October 24",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
     topic: "Number Theory",
     priceUsd: 62,
     closeDate: new Date("2026-10-24T23:59:59"),
@@ -90,6 +94,7 @@ const allTrainingMonths = [
     label: "November 2026",
     dates: "November 7 – November 28",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
     topic: "Combinatorics",
     priceUsd: 62,
     closeDate: new Date("2026-11-28T23:59:59"),
@@ -99,11 +104,13 @@ const allTrainingMonths = [
     label: "January 2027",
     dates: "January 2 – January 23",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
     topic: "Algebra",
     priceUsd: 62,
     closeDate: new Date("2027-01-23T23:59:59"),
   },
 ];
+// ────────────────────────────────────────────────────────────────────────────
 
 const mockTests = [
   { id: "september-mock-2026", label: "September Mock Test", date: "September 26, 2026", priceUsd: 10 },
@@ -139,22 +146,20 @@ function isCompetitionOpen() {
   return new Date() <= COMPETITION_DEADLINE;
 }
 
-// ── Reusable dual-price display for individual competition ─────────────────
-// During early bird: green $12.50 badge (active) + orange $15 badge (dimmed)
-// After July 30:     green $12.50 badge (struck through) + orange $15 badge (active)
+// ── Competition price display ──────────────────────────────────────────────
+// Shows a small animated early bird pill above the clean $15 price.
+// Pill disappears automatically after Jul 30 — only $15 remains.
 function CompetitionPriceDisplay() {
   return (
-    <div className="competition-price-stack">
-      <div className={`price-badge price-badge--early${!IS_EARLY_BIRD ? " price-badge--struck" : ""}`}>
-        <span className="price-badge__label">🟢 Early Bird</span>
-        <span className="price-badge__amount">{formatUsd(COMPETITION_INDIVIDUAL_EARLY_BIRD_PRICE)}</span>
-        {IS_EARLY_BIRD && <span className="price-badge__note">Closes Jul 30, 2026</span>}
-      </div>
-      <div className={`price-badge price-badge--standard${IS_EARLY_BIRD ? " price-badge--upcoming" : ""}`}>
-        <span className="price-badge__label">🟠 Standard</span>
-        <span className="price-badge__amount">{formatUsd(COMPETITION_INDIVIDUAL_STANDARD_PRICE)}</span>
-        {IS_EARLY_BIRD && <span className="price-badge__note">From Jul 31, 2026</span>}
-      </div>
+    <div className="competition-price-display">
+      {IS_EARLY_BIRD && (
+        <span className="early-bird-pill">
+          🟢 Early Bird · {formatUsd(COMPETITION_INDIVIDUAL_EARLY_BIRD_PRICE)} · Closes Jul 30, 2026
+        </span>
+      )}
+      <strong className="competition-main-price">
+        {formatUsd(COMPETITION_INDIVIDUAL_STANDARD_PRICE)}/student
+      </strong>
     </div>
   );
 }
@@ -256,7 +261,6 @@ function App() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  // ── STEP 1: Save registration as "pending" BEFORE opening Paystack ──
   async function createPendingRegistration(
     reference: string,
     amountInSubunit: number,
@@ -307,47 +311,31 @@ function App() {
     if (regError || !registration) throw regError || new Error("Registration failed");
 
     if (programType === "training") {
-      const { data: months, error } = await supabase
-        .from("training_months")
-        .select("id, slug");
+      const { data: months, error } = await supabase.from("training_months").select("id, slug");
       if (error) throw error;
-
       const rows = months
         ?.filter((month) => selectedMonths.includes(month.slug))
         .map((month) => ({ registration_id: registration.id, training_month_id: month.id }));
-
       if (rows?.length) {
-        const { error: insertError } = await supabase
-          .from("registration_training_months")
-          .insert(rows);
+        const { error: insertError } = await supabase.from("registration_training_months").insert(rows);
         if (insertError) throw insertError;
       }
     }
 
     if (programType === "mock-test") {
-      const { data: mocks, error } = await supabase
-        .from("mock_tests")
-        .select("id, slug");
+      const { data: mocks, error } = await supabase.from("mock_tests").select("id, slug");
       if (error) throw error;
-
       const rows = mocks
         ?.filter((mock) => selectedMocks.includes(mock.slug))
         .map((mock) => ({ registration_id: registration.id, mock_test_id: mock.id }));
-
       if (rows?.length) {
-        const { error: insertError } = await supabase
-          .from("registration_mock_tests")
-          .insert(rows);
+        const { error: insertError } = await supabase.from("registration_mock_tests").insert(rows);
         if (insertError) throw insertError;
       }
     }
 
     if (programType === "competition" && competitionType === "team-of-8") {
-      const members = formData.teamMembers
-        .split("\n")
-        .map((name) => name.trim())
-        .filter(Boolean);
-
+      const members = formData.teamMembers.split("\n").map((name) => name.trim()).filter(Boolean);
       if (members.length) {
         const { error } = await supabase.from("competition_team_members").insert(
           members.map((memberName) => ({
@@ -363,7 +351,6 @@ function App() {
     return registration.id;
   }
 
-  // ── STEP 2a: Update to "paid" after successful payment ──
   async function markRegistrationPaid(
     registrationId: string,
     reference: string,
@@ -374,7 +361,6 @@ function App() {
       .from("registrations")
       .update({ payment_status: "paid" })
       .eq("id", registrationId);
-
     if (updateError) throw updateError;
 
     const { error: paymentError } = await supabase.from("payments").insert({
@@ -386,11 +372,9 @@ function App() {
       provider: paymentMethod === "mpesa" ? "mpesa" : "paystack",
       paid_at: new Date().toISOString(),
     });
-
     if (paymentError) throw paymentError;
   }
 
-  // ── STEP 2b: Update to "cancelled" if Paystack is closed ──
   async function markRegistrationCancelled(registrationId: string) {
     await supabase
       .from("registrations")
@@ -412,9 +396,7 @@ function App() {
     }
 
     const reference = `LS-PUMAC-${Date.now()}`;
-    const selectedTrainingMonths = allTrainingMonths.filter((month) =>
-      selectedMonths.includes(month.id)
-    );
+    const selectedTrainingMonths = allTrainingMonths.filter((month) => selectedMonths.includes(month.id));
     const selectedMockTests = mockTests.filter((mock) => selectedMocks.includes(mock.id));
 
     let registrationId: string;
@@ -428,9 +410,7 @@ function App() {
       }
     } catch (error) {
       console.error("Failed to save registration before payment:", error);
-      alert(
-        "Something went wrong saving your details. Please try again or contact ask@learningsprouts.school."
-      );
+      alert("Something went wrong saving your details. Please try again or contact ask@learningsprouts.school.");
       return;
     }
 
@@ -468,19 +448,12 @@ function App() {
             window.location.href = `/thank-you.html?reference=${response.reference}`;
           } catch (error) {
             console.error(error);
-            alert(
-              `Payment successful (ref: ${response.reference}) but we could not update your record. ` +
-              `Your details are saved. Please email ask@learningsprouts.school with this reference.`
-            );
+            alert(`Payment successful (ref: ${response.reference}) but we could not update your record. Your details are saved. Please email ask@learningsprouts.school with this reference.`);
           }
         },
         onCancel: async () => {
           setStkPending(false);
-          try {
-            await markRegistrationCancelled(registrationId);
-          } catch (error) {
-            console.error("Failed to mark registration as cancelled:", error);
-          }
+          try { await markRegistrationCancelled(registrationId); } catch (e) { console.error(e); }
           alert("Payment window closed. Your details have been saved — you can complete payment any time by registering again.");
         },
       });
@@ -513,18 +486,11 @@ function App() {
             window.location.href = `/thank-you.html?reference=${response.reference}`;
           } catch (error) {
             console.error(error);
-            alert(
-              `Payment successful (ref: ${response.reference}) but we could not update your record. ` +
-              `Your details are saved. Please email ask@learningsprouts.school with this reference.`
-            );
+            alert(`Payment successful (ref: ${response.reference}) but we could not update your record. Your details are saved. Please email ask@learningsprouts.school with this reference.`);
           }
         },
         onCancel: async () => {
-          try {
-            await markRegistrationCancelled(registrationId);
-          } catch (error) {
-            console.error("Failed to mark registration as cancelled:", error);
-          }
+          try { await markRegistrationCancelled(registrationId); } catch (e) { console.error(e); }
           alert("Payment window closed. Your details have been saved — you can complete payment any time by registering again.");
         },
       });
@@ -656,7 +622,6 @@ function App() {
                 <button onClick={() => openRegistration("training")}>Register as Individual</button>
               </div>
             </article>
-
             <article className="register-card">
               <div className="register-card-icon">👥</div>
               <h4>Team Registration</h4>
@@ -670,7 +635,6 @@ function App() {
                 )}
               </div>
             </article>
-
             <article className="register-card register-card--school">
               <div className="register-card-icon">🏫</div>
               <h4>School Registration</h4>
@@ -701,7 +665,6 @@ function App() {
                 <button onClick={() => openRegistration("training")}>Register as Individual</button>
               </div>
             </article>
-
             <article className="register-card">
               <div className="register-card-icon">👥</div>
               <h4>Team Registration</h4>
@@ -714,7 +677,6 @@ function App() {
                 )}
               </div>
             </article>
-
             <article className="register-card register-card--school">
               <div className="register-card-icon">🏫</div>
               <h4>School Registration</h4>
@@ -733,12 +695,10 @@ function App() {
       <section className="section" id="pricing">
         <p className="section-label">Pricing & registration</p>
         <h2>Choose your PUMaC pathway</h2>
-
         <div className="recommended-pathway">
           <p className="recommended-label">⭐ Recommended pathway</p>
           <p className="recommended-desc">Most students register for Training + Mock Tests + Competition for the full preparation experience.</p>
         </div>
-
         <div className="cards-grid three">
           <article className="pricing-card">
             <h3>Training Program</h3>
@@ -785,7 +745,6 @@ function App() {
       <section className="section" id="rules">
         <p className="section-label">Competition Rules</p>
         <h2>How PUMaC Africa Works</h2>
-
         <div className="cards-grid three rules-overview-cards">
           <article className="info-card rules-card">
             <span>✅</span>
@@ -797,19 +756,16 @@ function App() {
               <li>Virtual participation from anywhere in Africa</li>
             </ul>
           </article>
-
           <article className="info-card rules-card">
             <span>🏆</span>
             <h3>Format</h3>
             <ul className="rules-list">
-              <li>Individual registration — see pricing below</li>
+              <li>Individual registration — {formatUsd(COMPETITION_INDIVIDUAL_STANDARD_PRICE)}/student</li>
               <li>Team of 8 — $100 per team</li>
               <li>All participants compete in Individual and Team rounds</li>
               <li>Individuals are grouped into teams of 8 for Power and Team rounds</li>
             </ul>
-            <CompetitionPriceDisplay />
           </article>
-
           <article className="info-card rules-card">
             <span>🎯</span>
             <h3>Divisions</h3>
@@ -896,6 +852,7 @@ function App() {
           <details><summary>Can students register as a team?</summary><p>Yes. Students can register individually or as a team of up to 8 students.</p></details>
           <details><summary>Can Kenyan students pay in KSh via M-Pesa?</summary><p>Yes. Kenyan participants can pay via M-Pesa STK push. Simply fill in your details, select Kenya as your country, and choose M-Pesa as your payment method. You'll receive a prompt on your phone to complete the payment.</p></details>
           <details><summary>Is there an early bird price for the competition?</summary><p>Yes. Individual competition registration is $12.50 (early bird) until July 30, 2026. From July 31, 2026, the standard price of $15.00 applies. Team registration remains $100 regardless of timing.</p></details>
+          <details><summary>Are there weekly office hours?</summary><p>Yes. In addition to Saturday training sessions, weekly office hours are held every Friday from 7:30 PM – 8:30 PM (SAST, UTC+2) for Q&A and extra support.</p></details>
         </div>
       </section>
 
@@ -933,52 +890,19 @@ function App() {
               )}
 
               <div className="form-grid">
-                <label>
-                  Student Name
-                  <input value={formData.studentName} onChange={(e) => updateField("studentName", e.target.value)} placeholder="Student full name" />
-                  {errors.studentName && <span className="error-text">{errors.studentName}</span>}
-                </label>
-                <label>
-                  Student Age
-                  <input type="number" value={formData.studentAge} onChange={(e) => updateField("studentAge", e.target.value)} placeholder="Age" />
-                  {errors.studentAge && <span className="error-text">{errors.studentAge}</span>}
-                </label>
-                <label>
-                  School Name
-                  <input value={formData.currentSchool} onChange={(e) => updateField("currentSchool", e.target.value)} placeholder="School name" />
-                  {errors.currentSchool && <span className="error-text">{errors.currentSchool}</span>}
-                </label>
+                <label>Student Name<input value={formData.studentName} onChange={(e) => updateField("studentName", e.target.value)} placeholder="Student full name" />{errors.studentName && <span className="error-text">{errors.studentName}</span>}</label>
+                <label>Student Age<input type="number" value={formData.studentAge} onChange={(e) => updateField("studentAge", e.target.value)} placeholder="Age" />{errors.studentAge && <span className="error-text">{errors.studentAge}</span>}</label>
+                <label>School Name<input value={formData.currentSchool} onChange={(e) => updateField("currentSchool", e.target.value)} placeholder="School name" />{errors.currentSchool && <span className="error-text">{errors.currentSchool}</span>}</label>
                 <label>
                   Country
                   <input value={formData.country} onChange={(e) => updateField("country", e.target.value)} placeholder="Country" />
                   <span className="country-mpesa-hint">Enter "Kenya" to see M-Pesa payment option</span>
                   {errors.country && <span className="error-text">{errors.country}</span>}
                 </label>
-                <label>
-                  Parent/Guardian Name
-                  <input value={formData.parentName} onChange={(e) => updateField("parentName", e.target.value)} placeholder="Parent full name" />
-                  {errors.parentName && <span className="error-text">{errors.parentName}</span>}
-                </label>
-                <label>
-                  Parent Email
-                  <input type="email" value={formData.parentEmail} onChange={(e) => updateField("parentEmail", e.target.value)} placeholder="parent@email.com" />
-                  {errors.parentEmail && <span className="error-text">{errors.parentEmail}</span>}
-                </label>
-                <label>
-                  WhatsApp Number
-                  <input value={formData.parentWhatsapp} onChange={(e) => updateField("parentWhatsapp", e.target.value)} placeholder="+254..." />
-                  {errors.parentWhatsapp && <span className="error-text">{errors.parentWhatsapp}</span>}
-                </label>
-                <label>
-                  Preferred Contact
-                  <select value={formData.preferredContactMethod} onChange={(e) => updateField("preferredContactMethod", e.target.value as ContactMethod)}>
-                    <option value="">Select one</option>
-                    <option value="whatsapp">WhatsApp</option>
-                    <option value="email">Email</option>
-                    <option value="phone_call">Phone Call</option>
-                  </select>
-                  {errors.preferredContactMethod && <span className="error-text">{errors.preferredContactMethod}</span>}
-                </label>
+                <label>Parent/Guardian Name<input value={formData.parentName} onChange={(e) => updateField("parentName", e.target.value)} placeholder="Parent full name" />{errors.parentName && <span className="error-text">{errors.parentName}</span>}</label>
+                <label>Parent Email<input type="email" value={formData.parentEmail} onChange={(e) => updateField("parentEmail", e.target.value)} placeholder="parent@email.com" />{errors.parentEmail && <span className="error-text">{errors.parentEmail}</span>}</label>
+                <label>WhatsApp Number<input value={formData.parentWhatsapp} onChange={(e) => updateField("parentWhatsapp", e.target.value)} placeholder="+254..." />{errors.parentWhatsapp && <span className="error-text">{errors.parentWhatsapp}</span>}</label>
+                <label>Preferred Contact<select value={formData.preferredContactMethod} onChange={(e) => updateField("preferredContactMethod", e.target.value as ContactMethod)}><option value="">Select one</option><option value="whatsapp">WhatsApp</option><option value="email">Email</option><option value="phone_call">Phone Call</option></select>{errors.preferredContactMethod && <span className="error-text">{errors.preferredContactMethod}</span>}</label>
               </div>
 
               {errors.selection && <p className="error-text">{errors.selection}</p>}
@@ -998,6 +922,8 @@ function App() {
                         <strong>{month.label}</strong>
                         <span>{month.dates}</span>
                         <small>{month.time}</small>
+                        {/* ── Office hours line ── */}
+                        <small className="office-hours-time">Optional: PUMaC Office Hours · {month.officeHours}</small>
                         <span className="option-card-topic">{month.topic}</span>
                         <b>{formatUsd(month.priceUsd)}</b>
                       </button>
@@ -1019,27 +945,17 @@ function App() {
               {programType === "competition" && (
                 <>
                   <div className="option-grid">
-                    <button
-                      type="button"
-                      className={competitionType === "individual" ? "option-card selected" : "option-card"}
-                      onClick={() => setCompetitionType("individual")}
-                    >
+                    <button type="button" className={competitionType === "individual" ? "option-card selected" : "option-card"} onClick={() => setCompetitionType("individual")}>
                       <strong>Individual Registration</strong>
                       <span>January 30, 2027</span>
                       <CompetitionPriceDisplay />
                     </button>
-
-                    <button
-                      type="button"
-                      className={competitionType === "team-of-8" ? "option-card selected" : "option-card"}
-                      onClick={() => setCompetitionType("team-of-8")}
-                    >
+                    <button type="button" className={competitionType === "team-of-8" ? "option-card selected" : "option-card"} onClick={() => setCompetitionType("team-of-8")}>
                       <strong>Team Registration</strong>
                       <span>Up to 8 students</span>
                       <b>{formatUsd(COMPETITION_TEAM_PRICE)}</b>
                     </button>
                   </div>
-
                   {competitionType === "team-of-8" && (
                     <div className="form-grid team-fields">
                       <label>Team Name<input value={formData.teamName} onChange={(e) => updateField("teamName", e.target.value)} placeholder="Team name" />{errors.teamName && <span className="error-text">{errors.teamName}</span>}</label>
