@@ -1,39 +1,31 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap");
-
 :root {
   font-family: "DM Sans", system-ui, sans-serif;
   color: #142033;
   background: #fff8ef;
 }
-
 * {
   box-sizing: border-box;
 }
-
 html {
   scroll-behavior: smooth;
 }
-
 body {
   margin: 0;
   background: #fff8ef;
 }
-
 button,
 input,
 select,
 textarea {
   font: inherit;
 }
-
 button {
   cursor: pointer;
 }
-
 .page {
   min-height: 100vh;
 }
-
 /* ── Nav ── */
 .site-nav {
   position: sticky;
@@ -48,11 +40,9 @@ button {
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(20, 32, 51, 0.08);
 }
-
 .site-nav--scrolled {
   box-shadow: 0 12px 30px rgba(20, 32, 51, 0.08);
 }
-
 .nav-brand {
   text-transform: uppercase;
   color: #f47c20;
@@ -61,24 +51,20 @@ button {
   letter-spacing: 0.16em;
   text-decoration: none;
 }
-
 .site-nav nav {
   display: flex;
   gap: 24px;
   align-items: center;
 }
-
 .site-nav a {
   color: #142033;
   text-decoration: none;
   font-weight: 800;
   font-size: 0.9rem;
 }
-
 .nav-register-link {
   color: #f47c20 !important;
 }
-
 .site-nav button,
 .hero-actions button,
 .program-card button,
@@ -91,7 +77,6 @@ button {
   padding: 13px 24px;
   font-weight: 900;
 }
-
 /* ── Hero social proof ── */
 .hero-social-proof {
   display: flex;
@@ -99,7 +84,6 @@ button {
   gap: 10px;
   margin-top: 28px;
 }
-
 .hero-social-proof--orange {
   display: inline-block;
   font-size: 0.88rem;
@@ -109,18 +93,15 @@ button {
   border-radius: 999px;
   padding: 8px 16px;
 }
-
 /* ── Hero ── */
 .hero {
   max-width: 1180px;
   margin: auto;
 }
-
 .hero-compact {
   min-height: auto;
   padding: 96px 8% 72px;
 }
-
 .eyebrow,
 .section-label {
   text-transform: uppercase;
@@ -129,7 +110,6 @@ button {
   letter-spacing: 0.18em;
   font-size: 0.8rem;
 }
-
 .hero h1 {
   max-width: 820px;
   font-size: clamp(3rem, 6vw, 5.5rem);
@@ -137,14 +117,12 @@ button {
   letter-spacing: -0.07em;
   margin: 20px 0;
 }
-
 .hero p {
   max-width: 720px;
   color: #5c6678;
   font-size: 1.08rem;
   line-height: 1.8;
 }
-
 .hero-subline {
   margin-top: 14px;
   color: #142033;
@@ -152,19 +130,18 @@ button {
   font-size: 0.98rem;
   letter-spacing: 0.01em;
 }
-
 .hero-actions {
   margin-top: 32px;
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
 }
-
 .hero-actions .secondary {
   background: white;
   color: #142033;
   border: 1px solid rgba(20, 32, 51, 0.16);
 }
-
 /* ── Sections ── */
 .section {
   max-width: 1180px;
@@ -173,31 +150,26 @@ button {
   border-top: 1px solid rgba(20, 32, 51, 0.1);
   scroll-margin-top: 88px;
 }
-
 .section h2 {
   font-size: clamp(2rem, 4vw, 3.5rem);
   letter-spacing: -0.05em;
   margin: 12px 0 32px;
 }
-
 .section-copy {
   max-width: 760px;
   color: #5c6678;
   line-height: 1.8;
   font-size: 1.05rem;
 }
-
 /* ── Cards grid ── */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 22px;
 }
-
 .cards-grid.three {
   grid-template-columns: repeat(3, 1fr);
 }
-
 .info-card,
 .program-card,
 .pricing-card,
@@ -208,32 +180,27 @@ button {
   padding: 28px;
   box-shadow: 0 18px 50px rgba(20, 32, 51, 0.06);
 }
-
 .info-card span {
   color: #f47c20;
   font-size: 2.4rem;
   font-weight: 900;
 }
-
 .info-card h3,
 .program-card h3,
 .pricing-card h3 {
   margin-bottom: 10px;
 }
-
 .info-card p,
 .program-card p,
 .pricing-card p {
   color: #5c6678;
   line-height: 1.7;
 }
-
 .pricing-card strong {
   display: block;
   font-size: 2rem;
   margin: 12px 0;
 }
-
 /* ── Registration closed badge ── */
 .registration-closed-badge {
   display: inline-flex;
@@ -247,7 +214,6 @@ button {
   padding: 8px 16px;
   letter-spacing: 0.02em;
 }
-
 /* ── Competition deadline badge on pricing card ── */
 .competition-deadline-badge {
   display: inline-flex;
@@ -262,7 +228,6 @@ button {
   padding: 5px 12px;
   margin: 8px 0 12px;
 }
-
 /* ── Modal deadline notice ── */
 .modal-deadline-notice {
   display: inline-flex;
@@ -277,7 +242,6 @@ button {
   padding: 10px 16px;
   margin-bottom: 20px;
 }
-
 /* ── Mock test location tag ── */
 .mock-test-location {
   display: flex;
@@ -293,18 +257,15 @@ button {
   margin-top: 4px;
   line-height: 1.4;
 }
-
 .mock-test-location svg {
   flex-shrink: 0;
   margin-top: 2px;
 }
-
 /* ── Learning Sprouts section ── */
 .learning-sprouts-section {
   background: rgba(255, 255, 255, 0.42);
   border-radius: 28px;
 }
-
 /* ── Register split section ── */
 .register-split-section {
   display: flex;
@@ -312,32 +273,26 @@ button {
   gap: 0;
   padding-bottom: 0;
 }
-
 .register-group {
   padding: 56px 0;
 }
-
 .register-group + .register-group {
   border-top: 1px solid rgba(20, 32, 51, 0.08);
 }
-
 .register-group--other {
   background: rgba(20, 32, 51, 0.02);
   margin: 0 -8%;
   padding: 56px 8%;
   border-radius: 0;
 }
-
 .register-group-header {
   margin-bottom: 36px;
 }
-
 .register-group-header h2 {
   font-size: clamp(1.8rem, 3.5vw, 3rem);
   letter-spacing: -0.05em;
   margin: 12px 0 16px;
 }
-
 /* ── M-Pesa badge on Kenya cards ── */
 .mpesa-badge {
   display: inline-flex;
@@ -351,12 +306,10 @@ button {
   border-radius: 999px;
   padding: 4px 12px;
 }
-
 .mpesa-badge::before {
   content: "📱";
   font-size: 0.8rem;
 }
-
 /* ── Register cards ── */
 .register-card {
   background: white;
@@ -368,28 +321,23 @@ button {
   flex-direction: column;
   gap: 14px;
 }
-
 .register-card-icon {
   font-size: 2rem;
   line-height: 1;
 }
-
 .register-card h4 {
   font-size: 1.05rem;
   margin: 0;
 }
-
 .register-card p {
   color: #5c6678;
   line-height: 1.7;
   flex: 1;
   margin: 0;
 }
-
 .register-card .card-actions {
   margin-top: auto;
 }
-
 .register-card button {
   border: 0;
   border-radius: 999px;
@@ -400,12 +348,10 @@ button {
   font: inherit;
   cursor: pointer;
 }
-
 .register-card--school {
   background: linear-gradient(135deg, #fff4e6 0%, #ffffff 60%);
   border-color: rgba(244, 124, 32, 0.25);
 }
-
 .register-card-mail-btn {
   display: inline-flex;
   align-items: center;
@@ -421,17 +367,14 @@ button {
   cursor: pointer;
   transition: background 0.18s;
 }
-
 .register-card-mail-btn:hover {
   background: #d96a10;
 }
-
 /* ── Pricing featured card ── */
 .pricing-card--featured {
   border: 2px solid #f47c20;
   position: relative;
 }
-
 .pricing-featured-badge {
   display: inline-block;
   font-size: 0.72rem;
@@ -445,7 +388,6 @@ button {
   padding: 4px 12px;
   margin-bottom: 12px;
 }
-
 /* ── Recommended pathway ── */
 .recommended-pathway {
   background: white;
@@ -455,21 +397,18 @@ button {
   padding: 18px 22px;
   margin-bottom: 28px;
 }
-
 .recommended-label {
   font-weight: 900;
   font-size: 0.9rem;
   color: #142033;
   margin: 0 0 4px;
 }
-
 .recommended-desc {
   color: #5c6678;
   font-size: 0.9rem;
   line-height: 1.6;
   margin: 0;
 }
-
 /* ── No months message ── */
 .no-months-message {
   color: #5c6678;
@@ -481,29 +420,24 @@ button {
   border-radius: 14px;
   text-align: center;
 }
-
 /* ── Competition Rules Section ── */
 .rules-overview-cards {
   margin-bottom: 56px;
 }
-
 .rules-card {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-
 .rules-card span {
   font-size: 2rem;
 }
-
 .rules-card h3 {
   font-size: 1.1rem;
   font-weight: 900;
   margin: 0;
   color: #142033;
 }
-
 .rules-list {
   list-style: none;
   padding: 0;
@@ -512,7 +446,6 @@ button {
   flex-direction: column;
   gap: 10px;
 }
-
 .rules-list li {
   color: #5c6678;
   font-size: 0.9rem;
@@ -520,7 +453,6 @@ button {
   padding-left: 16px;
   position: relative;
 }
-
 .rules-list li::before {
   content: "→";
   position: absolute;
@@ -528,7 +460,6 @@ button {
   color: #f47c20;
   font-weight: 900;
 }
-
 /* ── Competition Flow ── */
 .competition-flow-section {
   background: white;
@@ -537,7 +468,6 @@ button {
   padding: 48px;
   box-shadow: 0 18px 50px rgba(20, 32, 51, 0.06);
 }
-
 .flow-title {
   font-size: clamp(1.4rem, 2.5vw, 2rem);
   font-weight: 900;
@@ -545,24 +475,20 @@ button {
   color: #142033;
   margin: 0 0 40px;
 }
-
 .flow-steps {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
-
 .flow-step {
   display: grid;
   grid-template-columns: 64px 1fr;
   gap: 24px;
   position: relative;
 }
-
 .flow-step:not(.flow-step--last) {
   padding-bottom: 36px;
 }
-
 .flow-connector {
   position: absolute;
   left: 31px;
@@ -571,7 +497,6 @@ button {
   width: 2px;
   background: linear-gradient(180deg, rgba(244, 124, 32, 0.3), rgba(244, 124, 32, 0.1));
 }
-
 .flow-step-icon {
   width: 64px;
   height: 64px;
@@ -586,11 +511,9 @@ button {
   position: relative;
   z-index: 1;
 }
-
 .flow-step-content {
   padding-top: 8px;
 }
-
 .flow-step-number {
   font-size: 0.72rem;
   font-weight: 900;
@@ -599,7 +522,6 @@ button {
   text-transform: uppercase;
   margin-bottom: 6px;
 }
-
 .flow-step-content h4 {
   font-size: 1.1rem;
   font-weight: 900;
@@ -607,14 +529,12 @@ button {
   color: #142033;
   margin: 0 0 8px;
 }
-
 .flow-step-content p {
   color: #5c6678;
   font-size: 0.92rem;
   line-height: 1.65;
   margin: 0 0 10px;
 }
-
 .flow-tag {
   display: inline-flex;
   align-items: center;
@@ -625,7 +545,6 @@ button {
   border-radius: 999px;
   padding: 4px 12px;
 }
-
 .flow-home-tag {
   display: inline-flex;
   align-items: center;
@@ -637,7 +556,6 @@ button {
   border-radius: 999px;
   padding: 4px 12px;
 }
-
 /* ── Mini events note ── */
 .mini-events-note {
   display: flex;
@@ -650,13 +568,11 @@ button {
   border-left: 4px solid #f47c20;
   border-radius: 14px;
 }
-
 .mini-events-icon {
   font-size: 1.4rem;
   flex-shrink: 0;
   margin-top: 2px;
 }
-
 .mini-events-note p {
   color: #5c6678;
   font-size: 0.92rem;
@@ -664,13 +580,11 @@ button {
   margin: 0;
   font-weight: 600;
 }
-
 /* ── Final CTA wrap ── */
 .final-cta-wrap {
   background: #fff8ef;
   padding: 72px 8%;
 }
-
 /* ── Final CTA strip ── */
 .final-cta-strip {
   background: #142033;
@@ -680,31 +594,26 @@ button {
   max-width: 1180px;
   margin: auto;
 }
-
 .final-cta-inner {
   max-width: 640px;
   margin: auto;
 }
-
 .final-cta-strip h2 {
   color: white;
   font-size: clamp(1.8rem, 3.5vw, 2.8rem);
   letter-spacing: -0.04em;
   margin: 0 0 16px;
 }
-
 .final-cta-strip p {
   color: rgba(255, 255, 255, 0.65);
   font-size: 1.05rem;
   line-height: 1.7;
   margin: 0 0 32px;
 }
-
 .final-cta-strip .hero-actions {
   justify-content: center;
   margin-top: 0;
 }
-
 .final-cta-strip button {
   border: 0;
   border-radius: 999px;
@@ -715,13 +624,11 @@ button {
   font: inherit;
   cursor: pointer;
 }
-
 .final-cta-strip .secondary {
   background: transparent;
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.35);
 }
-
 /* ── Modal ── */
 .modal-backdrop {
   position: fixed;
@@ -731,7 +638,6 @@ button {
   overflow-y: auto;
   padding: 40px 5%;
 }
-
 .registration-modal {
   max-width: 1180px;
   margin: auto;
@@ -739,7 +645,6 @@ button {
   grid-template-columns: minmax(0, 1fr) 360px;
   gap: 28px;
 }
-
 .registration-form,
 .payment-summary {
   position: relative;
@@ -747,7 +652,6 @@ button {
   border-radius: 28px;
   padding: 36px;
 }
-
 .modal-close {
   position: absolute;
   top: 18px;
@@ -756,19 +660,16 @@ button {
   background: transparent;
   font-size: 2rem;
 }
-
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px;
 }
-
 label {
   font-weight: 800;
   display: grid;
   gap: 8px;
 }
-
 input,
 select,
 textarea {
@@ -777,15 +678,12 @@ textarea {
   border-radius: 14px;
   padding: 14px 16px;
 }
-
 textarea {
   min-height: 120px;
 }
-
 .full-span {
   grid-column: 1 / -1;
 }
-
 /* ── Country M-Pesa hint ── */
 .country-mpesa-hint {
   font-size: 0.78rem;
@@ -793,58 +691,48 @@ textarea {
   color: #f47c20;
   margin-top: -2px;
 }
-
 .option-grid {
   margin-top: 28px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
 }
-
 .option-card {
   text-align: left;
   display: grid;
   gap: 8px;
   color: #142033;
 }
-
 .option-card.selected {
   border-color: #f47c20;
   background: #fff4e6;
 }
-
 .option-card small,
 .option-card span {
   color: #5c6678;
 }
-
 .option-card b {
   color: #142033;
 }
-
 .team-fields {
   margin-top: 22px;
 }
-
 /* ── Payment summary sidebar ── */
 .payment-summary {
   align-self: start;
   position: sticky;
   top: 100px;
 }
-
 .payment-amount {
   font-size: 3rem;
   margin: 8px 0 2px;
   letter-spacing: -0.04em;
 }
-
 .payment-usd-equiv {
   font-size: 0.88rem;
   color: #7a8495;
   margin: 0 0 16px;
 }
-
 .summary-line {
   display: flex;
   justify-content: space-between;
@@ -853,12 +741,10 @@ textarea {
   padding: 18px 0;
   margin: 24px 0;
 }
-
 /* ── Payment method toggle ── */
 .payment-method-section {
   margin-bottom: 20px;
 }
-
 .payment-method-label {
   font-size: 0.78rem;
   font-weight: 900;
@@ -867,14 +753,12 @@ textarea {
   color: #5c6678;
   margin: 0 0 10px;
 }
-
 .payment-method-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 16px;
 }
-
 .toggle-option {
   border: 1px solid rgba(20, 32, 51, 0.18);
   border-radius: 12px;
@@ -886,24 +770,20 @@ textarea {
   text-align: center;
   transition: all 0.15s;
 }
-
 .toggle-option.active {
   background: #142033;
   color: white;
   border-color: #142033;
 }
-
 .toggle-option:not(.active):hover {
   border-color: #142033;
 }
-
 .mpesa-note {
   font-size: 0.82rem;
   color: #5c6678;
   margin: 4px 0 0;
   line-height: 1.5;
 }
-
 /* ── STK pending state ── */
 .stk-pending {
   background: #e6f4ec;
@@ -913,40 +793,33 @@ textarea {
   text-align: center;
   margin-bottom: 16px;
 }
-
 .stk-icon {
   font-size: 2rem;
   margin-bottom: 10px;
 }
-
 .stk-pending p {
   color: #1a6e3c !important;
   font-weight: 800;
   margin: 0 0 6px !important;
 }
-
 .stk-pending small {
   color: #2d8a52;
   font-size: 0.82rem;
   line-height: 1.5;
 }
-
 .payment-summary > button {
   width: 100%;
 }
-
 .payment-summary p {
   color: #7a8495;
   line-height: 1.6;
   font-size: 0.88rem;
   margin-top: 12px;
 }
-
 .error-text {
   color: #b42318;
   font-weight: 700;
 }
-
 /* ── Footer ── */
 .site-footer {
   background: #142033;
@@ -954,14 +827,12 @@ textarea {
   padding: 56px 8%;
   text-align: center;
 }
-
 .footer-brand {
   font-weight: 900;
   color: #f47c20;
   text-transform: uppercase;
   letter-spacing: 0.16em;
 }
-
 .site-footer a {
   color: white;
   margin: 0 12px;
@@ -970,7 +841,6 @@ textarea {
   align-items: center;
   text-decoration: none;
 }
-
 /* ── Button helpers ── */
 .button-row,
 .card-actions {
@@ -979,28 +849,23 @@ textarea {
   gap: 12px;
   flex-wrap: nowrap;
 }
-
 .program-card,
 .pricing-card {
   display: flex;
   flex-direction: column;
 }
-
 .program-card p,
 .pricing-card p {
   flex: 1;
 }
-
 .card-actions {
   margin-top: auto;
 }
-
 /* ── FAQ ── */
 .faq-list {
   display: grid;
   gap: 12px;
 }
-
 .faq-list details {
   background: white;
   border: 1px solid rgba(20, 32, 51, 0.1);
@@ -1008,18 +873,15 @@ textarea {
   padding: 20px 24px;
   box-shadow: 0 12px 30px rgba(20, 32, 51, 0.04);
 }
-
 .faq-list summary {
   cursor: pointer;
   font-weight: 900;
 }
-
 .faq-list p {
   color: #5c6678;
   line-height: 1.7;
   margin-bottom: 0;
 }
-
 /* ── Training month topic pill ── */
 .option-card-topic {
   display: inline-flex;
@@ -1034,12 +896,10 @@ textarea {
   width: fit-content;
   letter-spacing: 0.02em;
 }
-
 .option-card.selected .option-card-topic {
   background: rgba(244, 124, 32, 0.15);
   border-color: rgba(244, 124, 32, 0.5);
 }
-
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .cards-grid,
@@ -1048,83 +908,65 @@ textarea {
   .rules-overview-cards {
     grid-template-columns: 1fr;
   }
-
   .form-grid,
   .option-grid {
     grid-template-columns: 1fr;
   }
-
   .site-nav {
     padding: 0 5%;
   }
-
   .site-nav nav a {
     display: none;
   }
-
   .hero-actions {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .hero-social-proof {
     flex-direction: column;
     gap: 8px;
   }
-
   .button-row,
   .card-actions {
     flex-wrap: wrap;
   }
-
   .final-cta-wrap {
     padding: 48px 5%;
   }
-
   .final-cta-strip .hero-actions {
     flex-direction: column;
     align-items: center;
   }
-
   .register-group--other {
     margin: 0 -5%;
     padding: 56px 5%;
   }
-
   .payment-method-toggle {
     grid-template-columns: 1fr;
   }
-
   .competition-flow-section {
     padding: 28px 20px;
   }
-
   .flow-step {
     grid-template-columns: 48px 1fr;
     gap: 16px;
   }
-
   .flow-step-icon {
     width: 48px;
     height: 48px;
     font-size: 1.2rem;
     border-radius: 14px;
   }
-
   .flow-connector {
     left: 23px;
     top: 48px;
   }
 }
 
-placeholder
-
 /* ─────────────────────────────────────────
    COMPETITION PRICE DISPLAY
    Small early bird pill + clean main price
 ───────────────────────────────────────── */
-
-/* Wrapper — column, tight spacing */
 .competition-price-display {
   display: flex;
   flex-direction: column;
@@ -1132,7 +974,6 @@ placeholder
   margin: 8px 0 4px;
 }
 
-/* Tiny animated green pill — disappears after Jul 30 automatically */
 .early-bird-pill {
   display: inline-flex;
   align-items: center;
@@ -1155,7 +996,6 @@ placeholder
   100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(26, 92, 48, 0);    }
 }
 
-/* Main price — matches $62/month and $10 style exactly */
 .competition-main-price {
   display: block;
   font-size: inherit;
@@ -1168,4 +1008,31 @@ placeholder
 .office-hours-time {
   color: #f28c28;
   font-weight: 600;
+}
+
+/* ─────────────────────────────────────────
+   COMPETITION DATE PILL
+   Animated blue pill in hero — disappears
+   automatically after Jan 30, 2027
+───────────────────────────────────────── */
+.competition-date-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  color: #1d4ed8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  animation: comp-date-pulse 2s ease-in-out infinite;
+}
+
+@keyframes comp-date-pulse {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(29, 78, 216, 0.2); }
+  50%  { transform: scale(1.04); box-shadow: 0 0 0 5px rgba(29, 78, 216, 0); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(29, 78, 216, 0);   }
 }

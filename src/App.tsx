@@ -43,6 +43,8 @@ const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 const KES_RATE = 130;
 
 const COMPETITION_DEADLINE = new Date("2027-01-23T23:59:59");
+const COMPETITION_DATE = new Date("2027-01-30T23:59:59");
+const SHOW_COMPETITION_DATE_PILL = new Date() <= COMPETITION_DATE;
 
 // ── Early Bird Pricing ──────────────────────────────────────────────────────
 // Individual competition price is $12.50 until July 30 2026 (end of day),
@@ -62,7 +64,7 @@ const allTrainingMonths = [
   {
     id: "july-2026",
     label: "July 2026",
-    dates: "July 4 – July 25",
+    dates: "July 4, 11, 18, 25",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
     officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
     topic: "Algebra",
@@ -72,40 +74,50 @@ const allTrainingMonths = [
   {
     id: "august-2026",
     label: "August 2026",
-    dates: "August 5 – August 26",
+    dates: "August 8, 15, 22, 29",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
     officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
     topic: "Geometry",
     priceUsd: 62,
-    closeDate: new Date("2026-08-26T23:59:59"),
+    closeDate: new Date("2026-08-29T23:59:59"),
   },
   {
-    id: "october-2026",
-    label: "October 2026",
-    dates: "October 3 – October 24",
+    id: "september-2026",
+    label: "September 2026",
+    dates: "September 5, 12, 19, 26",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
     officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
     topic: "Number Theory",
     priceUsd: 62,
-    closeDate: new Date("2026-10-24T23:59:59"),
+    closeDate: new Date("2026-09-26T23:59:59"),
+  },
+  {
+    id: "october-2026",
+    label: "October 2026",
+    dates: "October 10, 17, 24, 31",
+    time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
+    officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
+    topic: "Combinatorics",
+    priceUsd: 62,
+    closeDate: new Date("2026-10-31T23:59:59"),
   },
   {
     id: "november-2026",
     label: "November 2026",
-    dates: "November 7 – November 28",
+    dates: "November 7, 14, 21, 28",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
     officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
-    topic: "Combinatorics",
+    topic: "Algebra",
     priceUsd: 62,
     closeDate: new Date("2026-11-28T23:59:59"),
   },
   {
     id: "january-2027",
     label: "January 2027",
-    dates: "January 2 – January 23",
+    dates: "January 2, 9, 16, 23",
     time: "Saturdays, 12:00 PM – 1:30 PM (SAST, UTC+2)",
     officeHours: "Fridays, 6:30 PM – 7:30 PM (SAST, UTC+2) · 7:30 PM – 8:30 PM (EAT, UTC+3)",
-    topic: "Algebra",
+    topic: "Geometry",
     priceUsd: 62,
     closeDate: new Date("2027-01-23T23:59:59"),
   },
@@ -113,8 +125,8 @@ const allTrainingMonths = [
 // ────────────────────────────────────────────────────────────────────────────
 
 const mockTests = [
-  { id: "september-mock-2026", label: "September Mock Test", date: "September 26, 2026", priceUsd: 10 },
-  { id: "november-mock-2026", label: "November Mock Test", date: "November 28, 2026", priceUsd: 10 },
+  { id: "october-mock-2026", label: "October Mock Test", date: "October 3, 2026", priceUsd: 10 },
+  { id: "december-mock-2026", label: "December Mock Test", date: "December 5, 2026", priceUsd: 10 },
 ];
 
 const initialFormData: FormData = {
@@ -529,6 +541,9 @@ function App() {
           <div className="hero-actions button-row">
             <button onClick={() => openRegistration("training")}>Register for Training</button>
             <button className="secondary" onClick={() => openRegistration("competition")}>Register for Competition</button>
+            {SHOW_COMPETITION_DATE_PILL && (
+              <span className="competition-date-pill">🏆 Competition Date: Jan 30, 2027</span>
+            )}
           </div>
           <div className="hero-social-proof">
             <span className="hero-social-proof--orange">🌍 Students from 12+ African countries</span>
