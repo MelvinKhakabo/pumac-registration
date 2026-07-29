@@ -962,7 +962,7 @@ textarea {
     top: 48px;
   }
 }
-
+ 
 /* ─────────────────────────────────────────
    COMPETITION PRICE DISPLAY
    Small early bird pill + clean main price
@@ -973,7 +973,7 @@ textarea {
   gap: 6px;
   margin: 8px 0 4px;
 }
-
+ 
 .early-bird-pill {
   display: inline-flex;
   align-items: center;
@@ -989,19 +989,19 @@ textarea {
   white-space: nowrap;
   animation: eb-pulse 2s ease-in-out infinite;
 }
-
+ 
 @keyframes eb-pulse {
   0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(26, 92, 48, 0.15); }
   50%  { transform: scale(1.04); box-shadow: 0 0 0 4px rgba(26, 92, 48, 0);  }
   100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(26, 92, 48, 0);    }
 }
-
+ 
 .competition-main-price {
   display: block;
   font-size: inherit;
   font-weight: 700;
 }
-
+ 
 /* ─────────────────────────────────────────
    OFFICE HOURS LINE on training cards
 ───────────────────────────────────────── */
@@ -1009,7 +1009,7 @@ textarea {
   color: #f28c28;
   font-weight: 600;
 }
-
+ 
 /* ─────────────────────────────────────────
    COMPETITION DATE PILL
    Animated blue pill in hero — disappears
@@ -1030,9 +1030,111 @@ textarea {
   white-space: nowrap;
   animation: comp-date-pulse 2s ease-in-out infinite;
 }
-
+ 
 @keyframes comp-date-pulse {
   0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(29, 78, 216, 0.2); }
   50%  { transform: scale(1.04); box-shadow: 0 0 0 5px rgba(29, 78, 216, 0); }
   100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(29, 78, 216, 0);   }
+}
+ 
+ 
+/* ─────────────────────────────────────────
+   2027 EARLY INTEREST SECTION & MODAL
+───────────────────────────────────────── */
+ 
+/* Section CTA button */
+.early-interest-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 28px;
+  border-radius: 999px;
+  border: none;
+  background: #142033;
+  color: #fff;
+  font-weight: 900;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, transform 0.2s;
+}
+.early-interest-btn:hover {
+  background: #f47c20;
+  transform: translateY(-2px);
+}
+ 
+/* Modal container — single centred card, no sidebar */
+.early-interest-modal {
+  position: relative;
+  max-width: 680px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 28px;
+  padding: 48px 40px 40px;
+  box-shadow: 0 20px 60px rgba(20, 32, 51, 0.14);
+}
+.early-interest-modal h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -0.04em;
+  margin: 12px 0 8px;
+}
+.early-interest-sub {
+  color: #5c6678;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  margin: 0 0 28px;
+}
+ 
+/* Submit button */
+.early-interest-submit-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 14px;
+  border-radius: 999px;
+  border: none;
+  background: #142033;
+  color: #fff;
+  font-weight: 900;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.early-interest-submit-btn:hover {
+  background: #f47c20;
+  transform: translateY(-1px);
+}
+.early-interest-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+ 
+/* Small note below submit */
+.early-interest-note {
+  color: #7a8495;
+  font-size: 0.82rem;
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.5;
+}
+ 
+/* Success state */
+.early-interest-success {
+  text-align: center;
+  padding: 32px 0 16px;
+}
+.early-interest-success-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+.early-interest-success h3 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-bottom: 10px;
+  color: #142033;
+}
+.early-interest-success p {
+  color: #5c6678;
+  font-size: 0.95rem;
+  line-height: 1.65;
 }

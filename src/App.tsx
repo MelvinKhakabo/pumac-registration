@@ -26,6 +26,17 @@ type ContactMethod = "" | "whatsapp" | "email" | "phone_call";
 type CompetitionType = "" | "individual" | "team-of-8";
 type PaymentMethod = "card" | "mpesa";
 
+type EarlyInterestFormData = {
+  studentName: string;
+  studentAge: string;
+  currentSchool: string;
+  country: string;
+  parentName: string;
+  parentEmail: string;
+  parentWhatsapp: string;
+  preferredContactMethod: ContactMethod;
+};
+
 type FormData = {
   studentName: string;
   studentAge: string;
@@ -142,6 +153,17 @@ const initialFormData: FormData = {
   teamMembers: "",
 };
 
+const initialEarlyInterestFormData: EarlyInterestFormData = {
+  studentName: "",
+  studentAge: "",
+  currentSchool: "",
+  country: "",
+  parentName: "",
+  parentEmail: "",
+  parentWhatsapp: "",
+  preferredContactMethod: "",
+};
+
 function formatUsd(amount: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
 }
@@ -192,6 +214,12 @@ function App() {
   const [scrolled, setScrolled] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [stkPending, setStkPending] = useState(false);
+
+  const [earlyInterestOpen, setEarlyInterestOpen] = useState(false);
+  const [earlyInterestForm, setEarlyInterestForm] = useState<EarlyInterestFormData>(initialEarlyInterestFormData);
+  const [earlyInterestErrors, setEarlyInterestErrors] = useState<Record<string, string>>({});
+  const [earlyInterestSubmitting, setEarlyInterestSubmitting] = useState(false);
+  const [earlyInterestSuccess, setEarlyInterestSuccess] = useState(false);
 
   const kenyanUser = isKenya(formData.country);
   const competitionOpen = isCompetitionOpen();
@@ -392,6 +420,57 @@ function App() {
       .from("registrations")
       .update({ payment_status: "cancelled" })
       .eq("id", registrationId);
+  }
+
+  function updateEarlyInterestField<K extends keyof EarlyInterestFormData>(key: K, value: EarlyInterestFormData[K]) {
+    setEarlyInterestForm((current) => ({ ...current, [key]: value }));
+    setEarlyInterestErrors((current) => ({ ...current, [key]: "" }));
+  }
+
+  function validateEarlyInterestForm() {
+    const nextErrors: Record<string, string> = {};
+    if (!earlyInterestForm.studentName.trim()) nextErrors.studentName = "Student name is required.";
+    if (!earlyInterestForm.studentAge.trim()) nextErrors.studentAge = "Student age is required.";
+    else if (Number(earlyInterestForm.studentAge) <= 0) nextErrors.studentAge = "Enter a valid age.";
+    else if (Number(earlyInterestForm.studentAge) >= 20) nextErrors.studentAge = "Student must be below age 20.";
+    if (!earlyInterestForm.currentSchool.trim()) nextErrors.currentSchool = "School name is required.";
+    if (!earlyInterestForm.country.trim()) nextErrors.country = "Country is required.";
+    if (!earlyInterestForm.parentName.trim()) nextErrors.parentName = "Parent/guardian name is required.";
+    if (!earlyInterestForm.parentEmail.trim()) nextErrors.parentEmail = "Parent email is required.";
+    else if (!/^\S+@\S+\.\S+$/.test(earlyInterestForm.parentEmail)) nextErrors.parentEmail = "Enter a valid email.";
+    if (!earlyInterestForm.parentWhatsapp.trim()) nextErrors.parentWhatsapp = "WhatsApp number is required.";
+    if (!earlyInterestForm.preferredContactMethod) nextErrors.preferredContactMethod = "Select contact method.";
+    setEarlyInterestErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
+
+  async function handleEarlyInterestSubmit() {
+    if (!validateEarlyInterestForm()) return;
+    setEarlyInterestSubmitting(true);
+    try {
+      const { error } = await supabase.from("early_interest_registrations").insert({
+        student_name: earlyInterestForm.studentName,
+        student_age: Number(earlyInterestForm.studentAge),
+        current_school: earlyInterestForm.currentSchool,
+        country: earlyInterestForm.country,
+        parent_name: earlyInterestForm.parentName,
+        parent_email: earlyInterestForm.parentEmail,
+        parent_whatsapp: earlyInterestForm.parentWhatsapp,
+        preferred_contact_method: earlyInterestForm.preferredContactMethod,
+      });
+      if (error) throw error;
+      setEarlyInterestSuccess(true);
+      setTimeout(() => {
+        setEarlyInterestOpen(false);
+        setEarlyInterestSuccess(false);
+        setEarlyInterestForm(initialEarlyInterestFormData);
+      }, 3000);
+    } catch (error) {
+      console.error("Early interest submission failed:", error);
+      alert("Something went wrong. Please try again or contact ask@learningsprouts.school.");
+    } finally {
+      setEarlyInterestSubmitting(false);
+    }
   }
 
   async function handlePayment() {
@@ -853,6 +932,28 @@ function App() {
         </div>
       </section>
 
+      {/* ── 2027 Early Interest ── */}
+      <section className="section" id="register-2027">
+        <p className="section-label">Coming in 2027</p>
+        <h2>Continue Your PUMaC Journey</h2>
+        <p className="section-copy">
+          Training resumes after the January 30, 2027 competition. Register your interest early
+          to secure your spot and be the first to receive schedule details, pricing, and resources
+          for the 2027 training cycle.
+        </p>
+        <button
+          className="early-interest-btn"
+          onClick={() => {
+            setEarlyInterestOpen(true);
+            setEarlyInterestSuccess(false);
+            setEarlyInterestForm(initialEarlyInterestFormData);
+            setEarlyInterestErrors({});
+          }}
+        >
+          Register Early Interest for 2027
+        </button>
+      </section>
+
       {/* ── 9. FAQ ── */}
       <section className="section" id="faqs">
         <p className="section-label">FAQs</p>
@@ -1018,6 +1119,89 @@ function App() {
               )}
               <p>{kenyanUser && paymentMethod === "mpesa" ? "Payment processed securely via M-Pesa through Paystack." : "Payment will be processed securely in USD through Paystack."}</p>
             </aside>
+          </section>
+        </div>
+      )}
+
+      {/* ── Early Interest Modal ── */}
+      {earlyInterestOpen && (
+        <div className="modal-backdrop">
+          <section className="early-interest-modal">
+            <button type="button" className="modal-close" onClick={() => setEarlyInterestOpen(false)}>×</button>
+            <p className="eyebrow">2027 Training</p>
+            <h2>Register Your Early Interest</h2>
+            <p className="early-interest-sub">
+              No payment required. We'll reach out with full schedule details and pricing as soon as they're confirmed.
+            </p>
+
+            {earlyInterestSuccess ? (
+              <div className="early-interest-success">
+                <div className="early-interest-success-icon">🎉</div>
+                <h3>You're on the list!</h3>
+                <p>Thanks for registering your interest. We'll be in touch with 2027 training details soon.</p>
+              </div>
+            ) : (
+              <>
+                <div className="form-grid">
+                  <label>
+                    Student Name
+                    <input value={earlyInterestForm.studentName} onChange={(e) => updateEarlyInterestField("studentName", e.target.value)} placeholder="Student full name" />
+                    {earlyInterestErrors.studentName && <span className="error-text">{earlyInterestErrors.studentName}</span>}
+                  </label>
+                  <label>
+                    Student Age
+                    <input type="number" value={earlyInterestForm.studentAge} onChange={(e) => updateEarlyInterestField("studentAge", e.target.value)} placeholder="Age" />
+                    {earlyInterestErrors.studentAge && <span className="error-text">{earlyInterestErrors.studentAge}</span>}
+                  </label>
+                  <label>
+                    School Name
+                    <input value={earlyInterestForm.currentSchool} onChange={(e) => updateEarlyInterestField("currentSchool", e.target.value)} placeholder="School name" />
+                    {earlyInterestErrors.currentSchool && <span className="error-text">{earlyInterestErrors.currentSchool}</span>}
+                  </label>
+                  <label>
+                    Country
+                    <input value={earlyInterestForm.country} onChange={(e) => updateEarlyInterestField("country", e.target.value)} placeholder="Country" />
+                    {earlyInterestErrors.country && <span className="error-text">{earlyInterestErrors.country}</span>}
+                  </label>
+                  <label>
+                    Parent/Guardian Name
+                    <input value={earlyInterestForm.parentName} onChange={(e) => updateEarlyInterestField("parentName", e.target.value)} placeholder="Parent full name" />
+                    {earlyInterestErrors.parentName && <span className="error-text">{earlyInterestErrors.parentName}</span>}
+                  </label>
+                  <label>
+                    Parent Email
+                    <input type="email" value={earlyInterestForm.parentEmail} onChange={(e) => updateEarlyInterestField("parentEmail", e.target.value)} placeholder="parent@email.com" />
+                    {earlyInterestErrors.parentEmail && <span className="error-text">{earlyInterestErrors.parentEmail}</span>}
+                  </label>
+                  <label>
+                    WhatsApp Number
+                    <input value={earlyInterestForm.parentWhatsapp} onChange={(e) => updateEarlyInterestField("parentWhatsapp", e.target.value)} placeholder="+254..." />
+                    {earlyInterestErrors.parentWhatsapp && <span className="error-text">{earlyInterestErrors.parentWhatsapp}</span>}
+                  </label>
+                  <label>
+                    Preferred Contact
+                    <select value={earlyInterestForm.preferredContactMethod} onChange={(e) => updateEarlyInterestField("preferredContactMethod", e.target.value as ContactMethod)}>
+                      <option value="">Select one</option>
+                      <option value="whatsapp">WhatsApp</option>
+                      <option value="email">Email</option>
+                      <option value="phone_call">Phone Call</option>
+                    </select>
+                    {earlyInterestErrors.preferredContactMethod && <span className="error-text">{earlyInterestErrors.preferredContactMethod}</span>}
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  className="early-interest-submit-btn"
+                  onClick={handleEarlyInterestSubmit}
+                  disabled={earlyInterestSubmitting}
+                >
+                  {earlyInterestSubmitting ? "Submitting..." : "Submit Early Interest"}
+                </button>
+                <p className="early-interest-note">
+                  No payment required at this stage. We'll contact you when 2027 registration opens.
+                </p>
+              </>
+            )}
           </section>
         </div>
       )}
