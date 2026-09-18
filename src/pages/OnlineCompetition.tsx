@@ -167,7 +167,7 @@ export default function OnlineCompetition() {
           <h1>Compete From Anywhere in Africa</h1>
           <div className="hero-pills">
             {SHOW_COMPETITION_DATE_PILL && (
-              <span className="competition-date-pill">Competition Date: Jan 30, 2027</span>
+              <span className="competition-date-pill">Competition Date: Feb 6, 2027</span>
             )}
             <span className="competition-date-pill">🌍 Fully Virtual</span>
           </div>
