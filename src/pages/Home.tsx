@@ -46,28 +46,11 @@ export default function Home() {
             </p>
           </div>
           <div className="about-trophy">
-            <div className="trophy-frame">
-              <div className="trophy-icon trophy-icon--fx">f(x)</div>
-              <div className="trophy-icon trophy-icon--hash">#</div>
-              <div className="trophy-icon trophy-icon--tri">
-                <svg viewBox="0 0 40 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 2L38 34H2L20 2Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div className="trophy-icon trophy-icon--circles">
-                <svg viewBox="0 0 48 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5"/>
-                  <circle cx="36" cy="12" r="10" stroke="currentColor" strokeWidth="2.5"/>
-                </svg>
-              </div>
-              <div className="trophy-cup">
-                <svg viewBox="0 0 80 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M15 10h50v30c0 16-11 28-25 30v8h10v6H30v-6h10v-8C26 68 15 56 15 40V10z" stroke="currentColor" strokeWidth="3" strokeLinejoin="round"/>
-                  <path d="M15 18H5c0 12 5 20 10 22" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                  <path d="M65 18h10c0 12-5 20-10 22" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                </svg>
-              </div>
-            </div>
+            <img
+              src="/pumac-logo.png"
+              alt="PUMaC Africa — Princeton University Mathematics Competition"
+              className="about-logo-img"
+            />
           </div>
         </div>
       </section>
