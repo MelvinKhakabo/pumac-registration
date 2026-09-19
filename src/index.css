@@ -1016,6 +1016,7 @@ p  { font-size: 1rem; line-height: 1.7; }
 .early-interest-card-icon {
   font-size: 2rem;
   line-height: 1;
+  align-self: center;
 }
 
 .early-interest-card p {
@@ -1028,4 +1029,16 @@ p  { font-size: 1rem; line-height: 1.7; }
   width: 100%;
   max-width: 320px;
   border-radius: 16px;
+}
+
+.page:has(.early-interest-card) {
+  background: var(--cream-1);
+}
+.page:has(.early-interest-card) .section--cream-1 {
+  text-align: center;
+}
+
+.page:has(.early-interest-card) .section-copy {
+  margin-left: auto;
+  margin-right: auto;
 }

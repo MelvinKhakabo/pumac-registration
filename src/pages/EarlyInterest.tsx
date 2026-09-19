@@ -204,7 +204,7 @@ export default function EarlyInterest() {
   }
  
   return (
-    <main className="page">
+    <main className="page" style={{ background: "var(--cream-1)" }}>
  
       {/* ── HERO ── deep navy */}
       <section className="hero hero-compact" id="hero">
@@ -223,27 +223,27 @@ export default function EarlyInterest() {
       </section>
  
       {/* ── CARDS ── cream-1 */}
-      <section className="section section--cream-1" id="interest">
+      <section className="section section--cream-1" id="interest" style={{ paddingBottom: "120px" }}>
         <p className="section-label">Early interest</p>
         <h2>How would you like to register?</h2>
         <p className="section-copy">
           No payment required at this stage — we'll notify you as soon as 2027
           registration opens.
         </p>
-        <div className="cards-grid">
-          <div className="card early-interest-card">
+        <div className="cards-grid" style={{ gridTemplateColumns: "repeat(2, 1fr)", maxWidth: "900px", margin: "40px auto 0" }}>
+          <div className="card early-interest-card" style={{ alignItems: "center", textAlign: "center", minHeight: "320px" }}>
             <div className="early-interest-card-icon"><PiStudent size={32} /></div>
             <h3>Individual Student</h3>
             <p>Register your child's early interest. We'll reach out when training and competition registration opens for 2027.</p>
-            <button className="btn btn-primary" onClick={() => { setErrors({}); setModal("individual"); }}>
+            <button className="btn btn-primary" style={{ alignSelf: "center" }} onClick={() => { setErrors({}); setModal("individual"); }}>
               Register Interest
             </button>
           </div>
-          <div className="card early-interest-card">
+          <div className="card early-interest-card" style={{ alignItems: "center", textAlign: "center", minHeight: "320px" }}>
             <div className="early-interest-card-icon"><PiBuildings size={32} /></div>
             <h3>School Enquiry</h3>
             <p>Coordinating a group from your school? Leave your details and we'll be in touch with group options for 2027.</p>
-            <button className="btn btn-primary" onClick={() => { setErrors({}); setModal("school"); }}>
+            <button className="btn btn-primary" style={{ alignSelf: "center" }} onClick={() => { setErrors({}); setModal("school"); }}>
               Make a School Enquiry
             </button>
           </div>
