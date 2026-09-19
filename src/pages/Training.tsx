@@ -165,7 +165,7 @@ export default function Training() {
     .filter((m) => selectedMocks.includes(m.id))
     .reduce((sum, m) => sum + m.priceUsd, 0);
 
-  const totalUsd = trainingTotal + mockTotal;
+  const totalUsd = programType === "training" ? trainingTotal : mockTotal;
   const totalKes = totalUsd * KES_RATE;
 
   function validateForm() {
@@ -190,55 +190,69 @@ export default function Training() {
   }
 
   async function createPendingRegistration() {
-    const { data: reg, error } = await supabase
-      .from("registrations")
-      .insert({
-        student_name: formData.studentName,
-        student_age: Number(formData.studentAge),
-        current_school: formData.currentSchool,
-        country: formData.country,
-        parent_name: formData.parentName,
-        parent_email: formData.parentEmail,
-        parent_whatsapp: formData.parentWhatsapp,
-        preferred_contact_method: formData.preferredContactMethod,
-        program_type: programType,
-        payment_status: "pending",
-        amount_usd: totalUsd,
-      })
-      .select()
-      .single();
+    if (programType === "training") {
+      // ── Insert into registrations_training ──
+      const { data: reg, error } = await supabase
+        .from("registrations_training")
+        .insert({
+          student_name: formData.studentName,
+          student_age: Number(formData.studentAge),
+          current_school: formData.currentSchool,
+          country: formData.country,
+          parent_name: formData.parentName,
+          parent_email: formData.parentEmail,
+          parent_whatsapp: formData.parentWhatsapp,
+          preferred_contact_method: formData.preferredContactMethod,
+          payment_status: "pending",
+          amount_usd: totalUsd,
+          payment_method: useMpesa ? "mpesa" : "card",
+        })
+        .select()
+        .single();
+      if (error) throw error;
 
-    if (error) throw error;
+      if (selectedMonths.length > 0) {
+        const monthRows = selectedMonths.map((mid) => ({
+          registrations_training_id: reg.id,
+          month_id: mid,
+        }));
+        const { error: mErr } = await supabase
+          .from("registration_training_months")
+          .insert(monthRows);
+        if (mErr) throw mErr;
+      }
 
-    if (selectedMonths.length > 0) {
-      const monthRows = selectedMonths.map((mid) => ({
-        registration_id: reg.id,
-        month_id: mid,
-      }));
-      const { error: mErr } = await supabase
-        .from("registration_training_months")
-        .insert(monthRows);
-      if (mErr) throw mErr;
+      return reg;
+    } else {
+      // ── Insert into registrations_mock_tests ──
+      const { data: reg, error } = await supabase
+        .from("registrations_mock_tests")
+        .insert({
+          student_name: formData.studentName,
+          student_age: Number(formData.studentAge),
+          current_school: formData.currentSchool,
+          country: formData.country,
+          parent_name: formData.parentName,
+          parent_email: formData.parentEmail,
+          parent_whatsapp: formData.parentWhatsapp,
+          preferred_contact_method: formData.preferredContactMethod,
+          selected_mock_ids: selectedMocks,
+          payment_status: "pending",
+          amount_usd: totalUsd,
+          payment_method: useMpesa ? "mpesa" : "card",
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return reg;
     }
-
-    if (selectedMocks.length > 0) {
-      const mockRows = selectedMocks.map((mid) => ({
-        registration_id: reg.id,
-        mock_test_id: mid,
-      }));
-      const { error: mkErr } = await supabase
-        .from("registration_mock_tests")
-        .insert(mockRows);
-      if (mkErr) throw mkErr;
-    }
-
-    return reg;
   }
 
   async function markRegistrationPaid(regId: string, reference: string) {
+    const table = programType === "training" ? "registrations_training" : "registrations_mock_tests";
     await supabase
-      .from("registrations")
-      .update({ payment_status: "paid" })
+      .from(table)
+      .update({ payment_status: "paid", payment_reference: reference })
       .eq("id", regId);
     await supabase.from("payments").insert({
       registration_id: regId,
@@ -249,8 +263,9 @@ export default function Training() {
   }
 
   async function markRegistrationCancelled(regId: string) {
+    const table = programType === "training" ? "registrations_training" : "registrations_mock_tests";
     await supabase
-      .from("registrations")
+      .from(table)
       .update({ payment_status: "cancelled" })
       .eq("id", regId);
   }
@@ -530,10 +545,10 @@ export default function Training() {
               <div className="modal-summary-col">
                 <h4>Order Summary</h4>
                 <ul className="summary-list">
-                  {allTrainingMonths.filter((m) => selectedMonths.includes(m.id)).map((m) => (
+                  {programType === "training" && allTrainingMonths.filter((m) => selectedMonths.includes(m.id)).map((m) => (
                     <li key={m.id}><span>{m.label}</span><span>{formatUsd(m.priceUsd)}</span></li>
                   ))}
-                  {mockTests.filter((m) => selectedMocks.includes(m.id)).map((m) => (
+                  {programType === "mock-test" && mockTests.filter((m) => selectedMocks.includes(m.id)).map((m) => (
                     <li key={m.id}><span>{m.label}</span><span>{formatUsd(m.priceUsd)}</span></li>
                   ))}
                 </ul>

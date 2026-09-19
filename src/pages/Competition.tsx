@@ -136,10 +136,8 @@ export default function Competition() {
   }
 
   async function createPendingRegistration() {
-    const { data: program } = await supabase.from("programs").select("id").eq("slug", "competition").single();
-    const { data: option } = await supabase.from("competition_options").select("id").eq("type", competitionType).single();
     const { data: reg, error } = await supabase
-      .from("registrations")
+      .from("registrations_competition")
       .insert({
         student_name: formData.studentName,
         student_age: Number(formData.studentAge),
@@ -148,19 +146,19 @@ export default function Competition() {
         parent_name: formData.parentName,
         parent_email: formData.parentEmail,
         parent_whatsapp: formData.parentWhatsapp,
-        program_id: program?.id,
-        competition_option_id: option?.id,
+        competition_type: competitionType,
         team_name: competitionType === "team-of-8" ? formData.teamName : null,
-        program_type: "competition",
         payment_status: "pending",
         amount_usd: priceUsd,
+        payment_method: useMpesa ? "mpesa" : "card",
       })
       .select()
       .single();
     if (error) throw error;
+
     if (competitionType === "team-of-8") {
       const memberRows = formData.teamMembers.map((m) => ({
-        registration_id: reg.id,
+        registrations_competition_id: reg.id,
         name: m.name,
         age: m.age ? Number(m.age) : null,
         school: m.school,
@@ -168,16 +166,28 @@ export default function Competition() {
       const { error: mErr } = await supabase.from("competition_team_members").insert(memberRows);
       if (mErr) throw mErr;
     }
+
     return reg;
   }
 
   async function markRegistrationPaid(regId: string, reference: string) {
-    await supabase.from("registrations").update({ payment_status: "paid" }).eq("id", regId);
-    await supabase.from("payments").insert({ registration_id: regId, reference, amount_usd: priceUsd, payment_method: useMpesa ? "mpesa" : "card" });
+    await supabase
+      .from("registrations_competition")
+      .update({ payment_status: "paid", payment_reference: reference })
+      .eq("id", regId);
+    await supabase.from("payments").insert({
+      registration_id: regId,
+      reference,
+      amount_usd: priceUsd,
+      payment_method: useMpesa ? "mpesa" : "card",
+    });
   }
 
   async function markRegistrationCancelled(regId: string) {
-    await supabase.from("registrations").update({ payment_status: "cancelled" }).eq("id", regId);
+    await supabase
+      .from("registrations_competition")
+      .update({ payment_status: "cancelled" })
+      .eq("id", regId);
   }
 
   async function handlePay() {
@@ -225,12 +235,12 @@ export default function Competition() {
               <span className="competition-date-pill">Competition Date: Jan 30, 2027</span>
             )}
             <span className="competition-date-pill">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:"inline",verticalAlign:"middle",marginRight:"5px",marginTop:"-2px"}}>
-    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-    <circle cx="12" cy="9" r="2.5"/>
-  </svg>
-  Nairobi, Kenya
-</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:"inline",verticalAlign:"middle",marginRight:"5px",marginTop:"-2px"}}>
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                <circle cx="12" cy="9" r="2.5"/>
+              </svg>
+              Nairobi, Kenya
+            </span>
             {IS_EARLY_BIRD && (
               <span className="early-bird-pill">Early Bird: Save 17%</span>
             )}

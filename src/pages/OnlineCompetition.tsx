@@ -103,6 +103,8 @@ export default function OnlineCompetition() {
         parent_whatsapp: formData.parentWhatsapp,
         payment_status: "pending",
         amount_usd: ONLINE_PRICE_USD,
+        amount_kes: useMpesa ? priceKes : null,
+        payment_method: useMpesa ? "mpesa" : "card",
       })
       .select()
       .single();
