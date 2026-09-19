@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { PiStudent, PiBuildings } from "react-icons/pi";
- 
+
 type ModalType = "" | "individual" | "school";
- 
+
 type IndividualFormData = {
   studentName: string;
   studentAge: string;
@@ -14,7 +14,7 @@ type IndividualFormData = {
   parentWhatsapp: string;
   interestedIn: string[];
 };
- 
+
 type SchoolFormData = {
   schoolName: string;
   contactName: string;
@@ -25,7 +25,7 @@ type SchoolFormData = {
   parentWhatsapp: string;
   interestedIn: string[];
 };
- 
+
 const initialIndividual: IndividualFormData = {
   studentName: "",
   studentAge: "",
@@ -36,7 +36,7 @@ const initialIndividual: IndividualFormData = {
   parentWhatsapp: "",
   interestedIn: [],
 };
- 
+
 const initialSchool: SchoolFormData = {
   schoolName: "",
   contactName: "",
@@ -47,14 +47,77 @@ const initialSchool: SchoolFormData = {
   parentWhatsapp: "",
   interestedIn: [],
 };
- 
+
 const interestOptions = [
   { id: "training", label: "Training sessions" },
   { id: "mock-tests", label: "Mock tests" },
   { id: "competition", label: "Competition (in-person)" },
   { id: "online-competition", label: "Competition (online)" },
 ];
- 
+
+const faqs = [
+  {
+    category: "General",
+    items: [
+      {
+        q: "I have a question about PUMaC Africa. What do I do?",
+        a: "The fastest way to reach us is by emailing ask@learningsprouts.school. Please do not contact Princeton University directly — PUMaC Africa is organised independently by Learning Sprouts. We'll get back to you within 24 hours.",
+      },
+      {
+        q: "How will PUMaC Africa communicate with registered students and schools?",
+        a: "All communication before competition day will be through email. Make sure to use an email address you check regularly when registering.",
+      },
+    ],
+  },
+  {
+    category: "Registration",
+    items: [
+      {
+        q: "What is the difference between the In-Person and Online Competition?",
+        a: "Both competitions test the same material and offer the same prizes. The In-Person Competition is held in Nairobi, Kenya. The Online Competition is fully virtual and open to students across Africa who cannot travel.",
+      },
+      {
+        q: "Can a student participate in both the In-Person and Online Competition?",
+        a: "No — you must choose one.",
+      },
+      {
+        q: "Can a school register more than one team?",
+        a: "Yes. Schools can register multiple teams. Contact us at ask@learningsprouts.school if you're coordinating a large group and we'll guide you through the process.",
+      },
+      {
+        q: "What payment methods do you accept?",
+        a: "We accept M-Pesa and card payments. Payment is completed after filling out the registration form.",
+      },
+    ],
+  },
+  {
+    category: "The Competition",
+    items: [
+      {
+        q: "What subjects are tested at PUMaC Africa?",
+        a: "The four subject areas are Algebra, Geometry, Number Theory, and Combinatorics — the same topics covered in our training sessions.",
+      },
+      {
+        q: "Can we challenge a problem if we think it's ambiguous or incorrect?",
+        a: "Yes. Contact a PUMaC Africa Math team staff member and they'll direct you to the right person.",
+      },
+      {
+        q: "Is it okay if we can't solve all the problems?",
+        a: "Absolutely. PUMaC problems are designed to be challenging — even solving a few is a real achievement. The goal is to push your thinking, not to get everything right.",
+      },
+    ],
+  },
+  {
+    category: "Awards",
+    items: [
+      {
+        q: "What awards are offered?",
+        a: "Top performers receive trophies, medals, and certificates. Award details for each competition cycle will be announced closer to competition day.",
+      },
+    ],
+  },
+];
+
 export default function EarlyInterest() {
   const [modal, setModal] = useState<ModalType>("");
   const [individualData, setIndividualData] = useState<IndividualFormData>(initialIndividual);
@@ -62,17 +125,18 @@ export default function EarlyInterest() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
- 
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
+
   function updateIndividual<K extends keyof IndividualFormData>(key: K, value: IndividualFormData[K]) {
     setIndividualData((f) => ({ ...f, [key]: value }));
     setErrors((e) => ({ ...e, [key]: "" }));
   }
- 
+
   function updateSchool<K extends keyof SchoolFormData>(key: K, value: SchoolFormData[K]) {
     setSchoolData((f) => ({ ...f, [key]: value }));
     setErrors((e) => ({ ...e, [key]: "" }));
   }
- 
+
   function toggleInterest(form: "individual" | "school", id: string) {
     if (form === "individual") {
       setIndividualData((f) => ({
@@ -90,7 +154,7 @@ export default function EarlyInterest() {
       }));
     }
   }
- 
+
   function validateIndividual() {
     const next: Record<string, string> = {};
     if (!individualData.studentName.trim()) next.studentName = "Student name is required.";
@@ -105,7 +169,7 @@ export default function EarlyInterest() {
     setErrors(next);
     return Object.keys(next).length === 0;
   }
- 
+
   function validateSchool() {
     const next: Record<string, string> = {};
     if (!schoolData.schoolName.trim()) next.schoolName = "School name is required.";
@@ -118,7 +182,7 @@ export default function EarlyInterest() {
     setErrors(next);
     return Object.keys(next).length === 0;
   }
- 
+
   async function handleIndividualSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validateIndividual()) return;
@@ -147,7 +211,7 @@ export default function EarlyInterest() {
       setSubmitting(false);
     }
   }
- 
+
   async function handleSchoolSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validateSchool()) return;
@@ -176,12 +240,12 @@ export default function EarlyInterest() {
       setSubmitting(false);
     }
   }
- 
+
   function closeModal() {
     setModal("");
     setErrors({});
   }
- 
+
   if (submitted) {
     return (
       <main className="page">
@@ -202,10 +266,10 @@ export default function EarlyInterest() {
       </main>
     );
   }
- 
+
   return (
     <main className="page" style={{ background: "var(--cream-1)" }}>
- 
+
       {/* ── HERO ── deep navy */}
       <section className="hero hero-compact" id="hero">
         <div>
@@ -221,9 +285,9 @@ export default function EarlyInterest() {
           </p>
         </div>
       </section>
- 
+
       {/* ── CARDS ── cream-1 */}
-      <section className="section section--cream-1" id="interest" style={{ paddingBottom: "120px" }}>
+      <section className="section section--cream-1" id="interest">
         <p className="section-label">Early interest</p>
         <h2>How would you like to register?</h2>
         <p className="section-copy">
@@ -231,7 +295,7 @@ export default function EarlyInterest() {
           registration opens.
         </p>
         <div className="cards-grid" style={{ gridTemplateColumns: "repeat(2, 1fr)", maxWidth: "900px", margin: "40px auto 0" }}>
-          <div className="card early-interest-card" style={{ alignItems: "center", textAlign: "center", minHeight: "320px" }}>
+          <div className="card early-interest-card" style={{ alignItems: "center", textAlign: "center" }}>
             <div className="early-interest-card-icon"><PiStudent size={32} /></div>
             <h3>Individual Student</h3>
             <p>Register your child's early interest. We'll reach out when training and competition registration opens for 2027.</p>
@@ -239,7 +303,7 @@ export default function EarlyInterest() {
               Register Interest
             </button>
           </div>
-          <div className="card early-interest-card" style={{ alignItems: "center", textAlign: "center", minHeight: "320px" }}>
+          <div className="card early-interest-card" style={{ alignItems: "center", textAlign: "center" }}>
             <div className="early-interest-card-icon"><PiBuildings size={32} /></div>
             <h3>School Enquiry</h3>
             <p>Coordinating a group from your school? Leave your details and we'll be in touch with group options for 2027.</p>
@@ -249,7 +313,39 @@ export default function EarlyInterest() {
           </div>
         </div>
       </section>
- 
+
+      {/* ── FAQs ── cream-2 */}
+      <section className="section section--cream-2" id="faqs">
+        <div className="section-inner">
+          <p className="section-label">Got questions?</p>
+          <h2>PUMaC Africa FAQs</h2>
+          <div className="faq-list">
+            {faqs.map((group) => (
+              <div key={group.category} className="faq-group">
+                <p className="faq-category">{group.category}</p>
+                {group.items.map((item) => {
+                  const key = `${group.category}-${item.q}`;
+                  const isOpen = openFaq === key;
+                  return (
+                    <div key={key} className={`faq-item${isOpen ? " faq-item--open" : ""}`}>
+                      <button
+                        className="faq-question"
+                        onClick={() => setOpenFaq(isOpen ? null : key)}
+                        aria-expanded={isOpen}
+                      >
+                        <span>{item.q}</span>
+                        <span className="faq-chevron">{isOpen ? "−" : "+"}</span>
+                      </button>
+                      {isOpen && <p className="faq-answer">{item.a}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── INDIVIDUAL MODAL ── */}
       {modal === "individual" && (
         <div className="modal-overlay" onClick={closeModal}>
@@ -317,7 +413,7 @@ export default function EarlyInterest() {
           </div>
         </div>
       )}
- 
+
       {/* ── SCHOOL MODAL ── */}
       {modal === "school" && (
         <div className="modal-overlay" onClick={closeModal}>
@@ -384,7 +480,7 @@ export default function EarlyInterest() {
           </div>
         </div>
       )}
- 
+
     </main>
   );
 }
