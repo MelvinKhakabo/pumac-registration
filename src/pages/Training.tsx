@@ -214,7 +214,7 @@ export default function Training() {
       if (selectedMonths.length > 0) {
         const monthRows = selectedMonths.map((mid) => ({
           registrations_training_id: reg.id,
-          month_id: mid,
+          training_month_id: mid,
         }));
         const { error: mErr } = await supabase
           .from("registration_training_months")
@@ -330,7 +330,6 @@ export default function Training() {
         <div className="section-inner">
           <p className="section-label">Monthly training</p>
 
-          {/* ── Upcoming ── */}
           {upcomingMonths.length > 0 && (
             <>
               <h2>Upcoming Training</h2>
@@ -352,7 +351,6 @@ export default function Training() {
             </>
           )}
 
-          {/* ── In Progress ── */}
           {inProgressMonths.length > 0 && (
             <>
               <h2 style={{ marginTop: upcomingMonths.length > 0 ? "56px" : "0" }}>
@@ -374,7 +372,6 @@ export default function Training() {
             </>
           )}
 
-          {/* ── Completed ── */}
           {completedMonths.length > 0 && (
             <div style={{ marginTop: "56px" }}>
               <button

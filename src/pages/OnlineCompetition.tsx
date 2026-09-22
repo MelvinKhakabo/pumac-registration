@@ -101,6 +101,7 @@ export default function OnlineCompetition() {
         parent_name: formData.parentName,
         parent_email: formData.parentEmail,
         parent_whatsapp: formData.parentWhatsapp,
+        preferred_contact_method: "email",
         payment_status: "pending",
         amount_usd: ONLINE_PRICE_USD,
         amount_kes: useMpesa ? priceKes : null,

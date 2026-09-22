@@ -159,9 +159,10 @@ export default function Competition() {
     if (competitionType === "team-of-8") {
       const memberRows = formData.teamMembers.map((m) => ({
         registrations_competition_id: reg.id,
-        name: m.name,
-        age: m.age ? Number(m.age) : null,
-        school: m.school,
+        team_name: formData.teamName,
+        member_name: m.name,
+        member_age: m.age ? Number(m.age) : null,
+        member_school: m.school,
       }));
       const { error: mErr } = await supabase.from("competition_team_members").insert(memberRows);
       if (mErr) throw mErr;

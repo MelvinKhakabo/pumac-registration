@@ -199,6 +199,7 @@ export default function EarlyInterest() {
           parent_name: individualData.parentName,
           parent_email: individualData.parentEmail,
           parent_whatsapp: individualData.parentWhatsapp,
+          preferred_contact_method: "whatsapp",
           interested_in: individualData.interestedIn,
         });
       if (error) throw error;
@@ -228,6 +229,7 @@ export default function EarlyInterest() {
           estimated_students: schoolData.estimatedStudents ? Number(schoolData.estimatedStudents) : null,
           parent_email: schoolData.parentEmail,
           parent_whatsapp: schoolData.parentWhatsapp,
+          preferred_contact_method: "whatsapp",
           interested_in: schoolData.interestedIn,
         });
       if (error) throw error;

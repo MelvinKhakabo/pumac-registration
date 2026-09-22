@@ -18,7 +18,7 @@ export const COMPETITION_TEAM_PRICE = 100;
 
 export const allTrainingMonths = [
   {
-    id: "july-2026",
+    id: "122ea5ec-14ce-4f48-abe5-bf648af5b3cc", // July 2026
     label: "July 2026",
     dates: "July 4, 11, 18, 25",
     topic: "Algebra",
@@ -28,7 +28,7 @@ export const allTrainingMonths = [
     closeDate: new Date("2026-07-25T23:59:59"),
   },
   {
-    id: "august-2026",
+    id: "fb9ff72c-097a-4f22-ad10-7da081d81f01", // August 2026
     label: "August 2026",
     dates: "August 8, 15, 22, 29",
     topic: "Geometry",
@@ -38,7 +38,7 @@ export const allTrainingMonths = [
     closeDate: new Date("2026-08-29T23:59:59"),
   },
   {
-    id: "september-2026",
+    id: "1e8e2b2a-e2a1-46d7-9638-e3fba3a17ca6", // September 2026
     label: "September 2026",
     dates: "September 5, 12, 19, 26",
     topic: "Number Theory",
@@ -48,7 +48,7 @@ export const allTrainingMonths = [
     closeDate: new Date("2026-09-26T23:59:59"),
   },
   {
-    id: "october-2026",
+    id: "19d8bd0b-e676-4ba5-b3ee-4ed4169ed623", // October 2026
     label: "October 2026",
     dates: "October 3, 10, 17, 24",
     topic: "Combinatorics",
@@ -58,7 +58,7 @@ export const allTrainingMonths = [
     closeDate: new Date("2026-10-31T23:59:59"),
   },
   {
-    id: "november-2026",
+    id: "a9fa83e3-cf24-4381-8c37-f1dce6988374", // November 2026
     label: "November 2026",
     dates: "November 7, 14, 21, 28",
     topic: "Algebra",
@@ -68,7 +68,7 @@ export const allTrainingMonths = [
     closeDate: new Date("2026-11-28T23:59:59"),
   },
   {
-    id: "january-2027",
+    id: "f015f71e-09d5-4a5e-8644-fd16d9f16940", // January 2027
     label: "January 2027",
     dates: "January 2, 9, 16, 23",
     topic: "Geometry",
