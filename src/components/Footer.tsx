@@ -31,11 +31,11 @@ export default function Footer() {
             <li>
               <FaInstagram size={14} />
               <a
-                href="https://instagram.com/learningsprouts.school"
+                href="https://www.instagram.com/learningsprouts_/"
                 target="_blank"
                 rel="noreferrer"
               >
-                @learningsprouts.school
+                @learningsprouts_
               </a>
             </li>
             <li>

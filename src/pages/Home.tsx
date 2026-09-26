@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { TbMathFunction, TbTriangle, TbHash, TbArrowsShuffle } from "react-icons/tb";
 
 export default function Home() {
   return (
@@ -8,10 +9,10 @@ export default function Home() {
       <section className="hero" id="hero">
         <div>
           <p className="eyebrow">PUMaC Africa · Princeton University Mathematics Competition</p>
-          <h1>Africa's Premier High School Mathematics Competition</h1>
+          <h1>Africa's First Ivy League Mathematics Competition</h1>
           <p>
             PUMaC Africa brings the Princeton University Mathematics Competition
-            to students across the continent — rigorous, inspiring, and built for
+            to students across the continent. A rigorous, inspiring, and supportive environment built for
             the next generation of African mathematicians.
           </p>
           <div className="hero-actions">
@@ -34,7 +35,7 @@ export default function Home() {
             <h2>What is PUMaC Africa?</h2>
             <p className="section-copy">
               PUMaC Africa is the official Africa mirror of Princeton University's
-              Mathematics Competition (PUMaC) — one of the most prestigious high
+              Mathematics Competition (PUMaC), one of the most prestigious high
               school math competitions in the world. We bring this world-class
               experience to African students through in-person and online formats,
               paired with structured training to help every participant grow.
@@ -105,18 +106,22 @@ export default function Home() {
           </p>
           <div className="focus-grid">
             <div className="focus-item">
+              <TbMathFunction className="focus-icon" size={28} aria-hidden="true" />
               <h4>Algebra</h4>
               <p>Polynomials, inequalities, sequences, and functional equations.</p>
             </div>
             <div className="focus-item">
+              <TbTriangle className="focus-icon" size={28} aria-hidden="true" />
               <h4>Geometry</h4>
               <p>Euclidean geometry, trigonometry, and coordinate methods.</p>
             </div>
             <div className="focus-item">
+              <TbHash className="focus-icon" size={28} aria-hidden="true" />
               <h4>Number Theory</h4>
               <p>Divisibility, modular arithmetic, primes, and Diophantine equations.</p>
             </div>
             <div className="focus-item">
+              <TbArrowsShuffle className="focus-icon" size={28} aria-hidden="true" />
               <h4>Combinatorics</h4>
               <p>Counting, probability, graph theory, and combinatorial reasoning.</p>
             </div>

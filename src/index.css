@@ -320,6 +320,7 @@ p  { font-size: 1rem; line-height: 1.7; }
   border: 1px solid var(--border-dark);
   box-shadow: var(--shadow-light);
 }
+.focus-icon { display: block; margin-bottom: 12px; color: var(--accent); }
 .focus-item h4 { margin-bottom: 8px; color: var(--navy); }
 .focus-item p  { font-size: 0.9rem; color: var(--text-muted); }
 
