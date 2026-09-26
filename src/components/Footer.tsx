@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="footer-col">
           <p className="footer-brand">PUMaC Africa</p>
           <p className="footer-tagline">
-            Africa's First Ivy League Mathematics Competition, brought to you
+            Africa's First Ivy League Mathematics Competition, hosted
             by Learning Sprouts.
           </p>
         </div>

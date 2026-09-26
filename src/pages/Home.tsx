@@ -11,9 +11,7 @@ export default function Home() {
           <p className="eyebrow">PUMaC Africa · Princeton University Mathematics Competition</p>
           <h1>Africa's First Ivy League Mathematics Competition</h1>
           <p>
-            PUMaC Africa brings the Princeton University Mathematics Competition
-            to students across the continent. A rigorous, inspiring, and supportive environment built for
-            the next generation of African mathematicians.
+            PUMaC Africa, hosted by Learning Sprouts, brings the Princeton University Mathematics Competition to students across the continent, nurturing the next generation of African mathematicians.
           </p>
           <div className="hero-actions">
             <Link to="/competition" className="btn btn-primary">
